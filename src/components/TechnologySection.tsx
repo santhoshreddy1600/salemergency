@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Cpu, Radio, MapPin, Wifi, Monitor } from "lucide-react";
+import { Cpu, Radio, MapPin, Plug, Monitor } from "lucide-react";
 
 const techStack = [
   { icon: Cpu, name: "ESP32 Microcontroller", description: "Dual-core processor handling real-time crash detection and communication." },
@@ -8,8 +8,6 @@ const techStack = [
   { icon: Radio, name: "GSM Module", description: "SIM800L for SMS alerts over cellular network — no WiFi needed." },
   { icon: Monitor, name: "Web & Mobile Dashboard", description: "Real-time monitoring, contact management, and crash history logs." },
 ];
-
-import { Plug } from "lucide-react";
 
 const TechnologySection = () => {
   return (
