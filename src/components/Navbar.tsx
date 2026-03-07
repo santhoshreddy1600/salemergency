@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogIn, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const navLinks = [
   { label: "Problem", href: "#problem" },
@@ -14,15 +16,32 @@ const navLinks = [
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-        <a href="#" className="font-display text-xl font-bold tracking-tight">
+        <a href="/" className="font-display text-xl font-bold tracking-tight">
           <span className="text-gradient">SAL</span>
         </a>
 
-        <div className="hidden items-center gap-8 md:flex">
+        <div className="hidden items-center gap-6 md:flex">
           {navLinks.map((link) => (
             <a
               key={link.href}
@@ -32,9 +51,22 @@ const Navbar = () => {
               {link.label}
             </a>
           ))}
-          <Button variant="hero" size="sm">
-            Join Beta
-          </Button>
+          <Link to="/join">
+            <Button variant="hero" size="sm">
+              Join SAL Team
+            </Button>
+          </Link>
+          {user ? (
+            <Button variant="ghost" size="sm" onClick={handleLogout}>
+              <LogOut className="mr-1 h-4 w-4" /> Logout
+            </Button>
+          ) : (
+            <Link to="/login">
+              <Button variant="hero-outline" size="sm">
+                <LogIn className="mr-1 h-4 w-4" /> Login
+              </Button>
+            </Link>
+          )}
         </div>
 
         <button className="md:hidden text-foreground" onClick={() => setOpen(!open)}>
@@ -61,9 +93,22 @@ const Navbar = () => {
                   {link.label}
                 </a>
               ))}
-              <Button variant="hero" size="sm">
-                Join Beta
-              </Button>
+              <Link to="/join" onClick={() => setOpen(false)}>
+                <Button variant="hero" size="sm" className="w-full">
+                  Join SAL Team
+                </Button>
+              </Link>
+              {user ? (
+                <Button variant="ghost" size="sm" onClick={() => { handleLogout(); setOpen(false); }}>
+                  <LogOut className="mr-1 h-4 w-4" /> Logout
+                </Button>
+              ) : (
+                <Link to="/login" onClick={() => setOpen(false)}>
+                  <Button variant="hero-outline" size="sm" className="w-full">
+                    <LogIn className="mr-1 h-4 w-4" /> Login
+                  </Button>
+                </Link>
+              )}
             </div>
           </motion.div>
         )}
