@@ -1,18 +1,17 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  LogOut, ArrowLeft, Wifi, WifiOff, Gauge, AlertTriangle,
-  MapPin, Radio, Activity, Shield
+  LogOut, ArrowLeft, Wifi, WifiOff, AlertTriangle,
+  MapPin, Radio, Activity, Shield, Heart, Droplets, Fuel
 } from "lucide-react";
 import { toast } from "sonner";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-// Fix leaflet default marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
@@ -28,6 +27,9 @@ interface DeviceData {
   latitude: number;
   longitude: number;
   gsm_signal: number;
+  spo2: number;
+  bpm: number;
+  fuel: number;
   created_at: string;
 }
 
@@ -36,6 +38,138 @@ interface Device {
   device_id: string;
   name: string;
 }
+
+// Speed Gauge SVG Component
+const SpeedGauge = ({ speed }: { speed: number }) => {
+  const maxSpeed = 160;
+  const clampedSpeed = Math.min(speed, maxSpeed);
+  const startAngle = -225;
+  const endAngle = 45;
+  const totalAngle = endAngle - startAngle;
+  const needleAngle = startAngle + (clampedSpeed / maxSpeed) * totalAngle;
+
+  const getColor = () => {
+    if (speed <= 60) return "hsl(142, 76%, 46%)";
+    if (speed <= 100) return "hsl(45, 93%, 47%)";
+    return "hsl(0, 84%, 60%)";
+  };
+
+  const ticks = [0, 20, 40, 60, 80, 100, 120, 140, 160];
+
+  return (
+    <div className="flex flex-col items-center">
+      <svg viewBox="0 0 200 140" className="w-full max-w-[280px]">
+        {/* Background arc */}
+        <path
+          d="M 20 130 A 80 80 0 1 1 180 130"
+          fill="none"
+          stroke="hsl(var(--muted))"
+          strokeWidth="12"
+          strokeLinecap="round"
+        />
+        {/* Green zone 0-60 */}
+        <path
+          d="M 20 130 A 80 80 0 0 1 33.4 55.7"
+          fill="none"
+          stroke="hsl(142, 76%, 36%)"
+          strokeWidth="12"
+          strokeLinecap="round"
+          opacity="0.5"
+        />
+        {/* Yellow zone 60-100 */}
+        <path
+          d="M 33.4 55.7 A 80 80 0 0 1 100 50"
+          fill="none"
+          stroke="hsl(45, 93%, 47%)"
+          strokeWidth="12"
+          opacity="0.5"
+        />
+        {/* Red zone 100+ */}
+        <path
+          d="M 100 50 A 80 80 0 0 1 180 130"
+          fill="none"
+          stroke="hsl(0, 84%, 50%)"
+          strokeWidth="12"
+          strokeLinecap="round"
+          opacity="0.5"
+        />
+        {/* Tick marks and labels */}
+        {ticks.map((tick) => {
+          const angle = (startAngle + (tick / maxSpeed) * totalAngle) * (Math.PI / 180);
+          const innerR = 65;
+          const outerR = 75;
+          const labelR = 55;
+          const cx = 100 + outerR * Math.cos(angle);
+          const cy = 130 + outerR * Math.sin(angle);
+          const ix = 100 + innerR * Math.cos(angle);
+          const iy = 130 + innerR * Math.sin(angle);
+          const lx = 100 + labelR * Math.cos(angle);
+          const ly = 130 + labelR * Math.sin(angle);
+          return (
+            <g key={tick}>
+              <line x1={ix} y1={iy} x2={cx} y2={cy} stroke="hsl(var(--muted-foreground))" strokeWidth="1.5" />
+              <text x={lx} y={ly} textAnchor="middle" dominantBaseline="middle" fill="hsl(var(--muted-foreground))" fontSize="8" fontFamily="var(--font-display)">
+                {tick}
+              </text>
+            </g>
+          );
+        })}
+        {/* Needle */}
+        <line
+          x1="100"
+          y1="130"
+          x2={100 + 60 * Math.cos(needleAngle * (Math.PI / 180))}
+          y2={130 + 60 * Math.sin(needleAngle * (Math.PI / 180))}
+          stroke={getColor()}
+          strokeWidth="3"
+          strokeLinecap="round"
+          style={{ transition: "all 0.8s ease-out" }}
+        />
+        {/* Center dot */}
+        <circle cx="100" cy="130" r="6" fill={getColor()} />
+        <circle cx="100" cy="130" r="3" fill="hsl(var(--background))" />
+        {/* Speed text */}
+        <text x="100" y="118" textAnchor="middle" fill="hsl(var(--foreground))" fontSize="22" fontWeight="bold" fontFamily="var(--font-display)">
+          {speed}
+        </text>
+        <text x="100" y="108" textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize="7">
+          km/h
+        </text>
+      </svg>
+    </div>
+  );
+};
+
+// Fuel Bar Component
+const FuelBar = ({ fuel }: { fuel: number }) => {
+  const getColor = () => {
+    if (fuel <= 20) return "bg-[hsl(0,84%,60%)]";
+    if (fuel <= 50) return "bg-[hsl(30,90%,50%)]";
+    return "bg-[hsl(142,76%,46%)]";
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex justify-between text-sm">
+        <span className="text-muted-foreground">Empty</span>
+        <span className="font-display font-bold text-foreground text-lg">{fuel}%</span>
+        <span className="text-muted-foreground">Full</span>
+      </div>
+      <div className="h-5 w-full rounded-full bg-muted overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-all duration-700 ease-out ${getColor()}`}
+          style={{ width: `${Math.min(fuel, 100)}%` }}
+        />
+      </div>
+      <div className="flex justify-between text-xs text-muted-foreground">
+        <span>0</span>
+        <span>20</span>
+        <span>50</span>
+        <span>100</span>
+      </div>
+    </div>
+  );
+};
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -47,25 +181,17 @@ const Dashboard = () => {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session?.user) {
-        navigate("/login");
-        return;
-      }
+      if (!session?.user) { navigate("/login"); return; }
       setUser(session.user);
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session?.user) {
-        navigate("/login");
-        return;
-      }
+      if (!session?.user) { navigate("/login"); return; }
       setUser(session.user);
     });
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  useEffect(() => {
-    if (user) fetchDevices();
-  }, [user]);
+  useEffect(() => { if (user) fetchDevices(); }, [user]);
 
   useEffect(() => {
     if (!selectedDevice) return;
@@ -74,32 +200,24 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, [selectedDevice]);
 
-  // Realtime subscription
   useEffect(() => {
     if (!selectedDevice) return;
     const channel = supabase
       .channel("device-data-realtime")
       .on("postgres_changes", {
-        event: "INSERT",
-        schema: "public",
-        table: "device_data",
+        event: "INSERT", schema: "public", table: "device_data",
         filter: `device_id=eq.${selectedDevice}`,
-      }, (payload) => {
-        setLatestData(payload.new as DeviceData);
-      })
+      }, (payload) => setLatestData(payload.new as DeviceData))
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [selectedDevice]);
 
   const fetchDevices = async () => {
     const { data, error } = await supabase.from("devices").select("id, device_id, name");
-    if (error) {
-      toast.error("Failed to load devices");
-    } else {
+    if (error) { toast.error("Failed to load devices"); }
+    else {
       setDevices(data || []);
-      if (data && data.length > 0) {
-        setSelectedDevice(data[0].device_id);
-      }
+      if (data && data.length > 0) setSelectedDevice(data[0].device_id);
     }
     setLoading(false);
   };
@@ -113,9 +231,7 @@ const Dashboard = () => {
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
-    if (!error && data) {
-      setLatestData(data);
-    }
+    if (!error && data) setLatestData(data as DeviceData);
   };
 
   const handleLogout = async () => {
@@ -123,16 +239,18 @@ const Dashboard = () => {
     navigate("/login");
   };
 
-  const isOnline = latestData
-    ? (Date.now() - new Date(latestData.created_at).getTime()) < 30000
-    : false;
-
+  const isOnline = latestData ? (Date.now() - new Date(latestData.created_at).getTime()) < 30000 : false;
   const isAccident = latestData?.accident === 1;
+  const isBpmAbnormal = latestData ? (latestData.bpm < 50 || latestData.bpm > 120) : false;
+  const isSpo2Abnormal = latestData ? latestData.spo2 < 90 && latestData.spo2 > 0 : false;
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Loading dashboard...</p>
+        <div className="flex flex-col items-center gap-3">
+          <Activity className="h-8 w-8 text-primary animate-pulse" />
+          <p className="text-muted-foreground">Loading dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -140,13 +258,23 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card">
+      <header className="border-b border-border bg-card/80 backdrop-blur-xl sticky top-0 z-40">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <div className="flex items-center gap-3">
-            <Activity className="h-5 w-5 text-primary" />
-            <span className="font-display text-lg font-bold text-foreground">SAL Dashboard</span>
+            <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center">
+              <Activity className="h-5 w-5 text-primary" />
+            </div>
+            <span className="font-display text-lg font-bold text-foreground">
+              SAL <span className="text-muted-foreground font-normal text-sm">Vehicle Monitor</span>
+            </span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            {isOnline && (
+              <span className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-full">
+                <span className="h-1.5 w-1.5 rounded-full bg-[hsl(142,76%,46%)] animate-pulse" />
+                Live
+              </span>
+            )}
             <Link to="/">
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="mr-1 h-4 w-4" /> Home
@@ -159,13 +287,23 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-6 py-8">
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 py-6">
         {/* Accident Alert Banner */}
         {isAccident && (
-          <div className="mb-6 flex items-center gap-3 rounded-xl border border-destructive bg-destructive/10 p-4">
-            <AlertTriangle className="h-6 w-6 text-destructive animate-pulse" />
+          <div className="mb-6 flex items-center gap-3 rounded-xl border border-destructive bg-destructive/10 p-4 animate-pulse">
+            <AlertTriangle className="h-6 w-6 text-destructive flex-shrink-0" />
             <span className="font-display text-lg font-bold text-destructive">
               🚨 Accident Detected – Emergency Alert Sent
+            </span>
+          </div>
+        )}
+
+        {/* Health Alerts */}
+        {latestData && (isBpmAbnormal || isSpo2Abnormal) && (
+          <div className="mb-6 flex items-center gap-3 rounded-xl border border-[hsl(30,90%,50%)] bg-[hsl(30,90%,50%,0.1)] p-4">
+            <Heart className="h-6 w-6 text-[hsl(30,90%,50%)] flex-shrink-0" />
+            <span className="font-display font-bold text-[hsl(30,90%,50%)]">
+              ⚠️ Abnormal Health Reading Detected – {isBpmAbnormal ? "BPM" : ""}{isBpmAbnormal && isSpo2Abnormal ? " & " : ""}{isSpo2Abnormal ? "SPO2" : ""} out of range
             </span>
           </div>
         )}
@@ -194,124 +332,187 @@ const Dashboard = () => {
           </div>
         ) : !latestData ? (
           <div className="rounded-xl border border-border bg-card p-12 text-center">
-            <Radio className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No data received from device yet.</p>
-            <p className="text-sm text-muted-foreground mt-2">Waiting for ESP32 to send data...</p>
+            <Radio className="mx-auto h-12 w-12 text-muted-foreground mb-4 animate-pulse" />
+            <p className="text-muted-foreground">Waiting for device data...</p>
+            <p className="text-sm text-muted-foreground mt-2">ESP32 will send data to the backend function.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {/* Device Status Card */}
-            <Card className="bg-card border-border">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Device Status</CardTitle>
-                {isOnline ? (
-                  <Wifi className="h-5 w-5 text-emerald-500" />
-                ) : (
-                  <WifiOff className="h-5 w-5 text-destructive" />
-                )}
-              </CardHeader>
-              <CardContent>
-                <p className="font-display text-2xl font-bold text-foreground">{selectedDevice}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className={`h-2.5 w-2.5 rounded-full ${isOnline ? "bg-emerald-500 animate-pulse" : "bg-destructive"}`} />
-                  <span className={`text-sm font-medium ${isOnline ? "text-emerald-500" : "text-destructive"}`}>
-                    {isOnline ? "Online" : "Offline"}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
+          <>
+            {/* Row 1: Speed Gauge + Health + Fuel */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+              {/* Speed Gauge */}
+              <Card className="bg-card border-border shadow-card">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-primary" /> Speed
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <SpeedGauge speed={Number(latestData.speed)} />
+                </CardContent>
+              </Card>
 
-            {/* Speed Card */}
-            <Card className="bg-card border-border">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Current Speed</CardTitle>
-                <Gauge className="h-5 w-5 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <p className="font-display text-3xl font-bold text-foreground">
-                  {latestData.speed} <span className="text-lg text-muted-foreground">km/h</span>
-                </p>
-              </CardContent>
-            </Card>
+              {/* Health Monitoring */}
+              <Card className="bg-card border-border shadow-card">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <Heart className="h-4 w-4 text-destructive" /> Driver Health
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* SPO2 */}
+                  <div className={`rounded-lg p-4 ${isSpo2Abnormal ? "bg-destructive/15 border border-destructive" : "bg-muted/50"}`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Droplets className={`h-5 w-5 ${isSpo2Abnormal ? "text-destructive" : "text-primary"}`} />
+                        <span className="text-sm text-muted-foreground">SpO2</span>
+                      </div>
+                      <div className="text-right">
+                        <span className={`font-display text-3xl font-bold ${isSpo2Abnormal ? "text-destructive" : "text-foreground"}`}>
+                          {latestData.spo2}
+                        </span>
+                        <span className="text-muted-foreground text-sm ml-1">%</span>
+                      </div>
+                    </div>
+                    <div className="mt-2 h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${isSpo2Abnormal ? "bg-destructive" : "bg-primary"}`}
+                        style={{ width: `${Math.min(latestData.spo2, 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                  {/* BPM */}
+                  <div className={`rounded-lg p-4 ${isBpmAbnormal ? "bg-destructive/15 border border-destructive" : "bg-muted/50"}`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Heart className={`h-5 w-5 ${isBpmAbnormal ? "text-destructive animate-pulse" : "text-destructive"}`} />
+                        <span className="text-sm text-muted-foreground">Heart Rate</span>
+                      </div>
+                      <div className="text-right">
+                        <span className={`font-display text-3xl font-bold ${isBpmAbnormal ? "text-destructive" : "text-foreground"}`}>
+                          {latestData.bpm}
+                        </span>
+                        <span className="text-muted-foreground text-sm ml-1">BPM</span>
+                      </div>
+                    </div>
+                    <p className={`text-xs mt-2 ${isBpmAbnormal ? "text-destructive" : "text-muted-foreground"}`}>
+                      {isBpmAbnormal ? "⚠️ Abnormal range" : "Normal range: 50-120"}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
 
-            {/* Accident Status Card */}
-            <Card className={`border-border ${isAccident ? "bg-destructive/10 border-destructive" : "bg-card"}`}>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Accident Status</CardTitle>
-                <Shield className={`h-5 w-5 ${isAccident ? "text-destructive" : "text-emerald-500"}`} />
-              </CardHeader>
-              <CardContent>
-                <p className={`font-display text-2xl font-bold ${isAccident ? "text-destructive" : "text-emerald-500"}`}>
-                  {isAccident ? "DETECTED" : "Safe"}
-                </p>
-              </CardContent>
-            </Card>
+              {/* Fuel + Device Status */}
+              <div className="space-y-6">
+                <Card className="bg-card border-border shadow-card">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                      <Fuel className="h-4 w-4 text-primary" /> Fuel Level
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <FuelBar fuel={Number(latestData.fuel)} />
+                  </CardContent>
+                </Card>
 
-            {/* GSM Signal Card */}
-            <Card className="bg-card border-border">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">GSM Signal</CardTitle>
-                <Radio className="h-5 w-5 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <p className="font-display text-3xl font-bold text-foreground">
-                  {latestData.gsm_signal} <span className="text-lg text-muted-foreground">/ 5</span>
-                </p>
-                <div className="flex gap-1 mt-2">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <div
-                      key={i}
-                      className={`h-3 w-4 rounded-sm ${i <= latestData.gsm_signal ? "bg-primary" : "bg-muted"}`}
-                    />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Map Section */}
-        {latestData && latestData.latitude !== 0 && latestData.longitude !== 0 && (
-          <Card className="bg-card border-border mb-8">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-primary" />
-                <CardTitle className="text-foreground">Vehicle Location</CardTitle>
+                <Card className="bg-card border-border shadow-card">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                      {isOnline ? <Wifi className="h-4 w-4 text-[hsl(142,76%,46%)]" /> : <WifiOff className="h-4 w-4 text-destructive" />}
+                      Device Status
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Device ID</span>
+                      <span className="font-display font-bold text-foreground">{selectedDevice}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Status</span>
+                      <span className={`flex items-center gap-1.5 text-sm font-medium ${isOnline ? "text-[hsl(142,76%,46%)]" : "text-destructive"}`}>
+                        <span className={`h-2 w-2 rounded-full ${isOnline ? "bg-[hsl(142,76%,46%)] animate-pulse" : "bg-destructive"}`} />
+                        {isOnline ? "Online" : "Offline"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">GSM Signal</span>
+                      <div className="flex items-center gap-1.5">
+                        <div className="flex gap-0.5 items-end">
+                          {[1, 2, 3, 4, 5].map((i) => (
+                            <div
+                              key={i}
+                              className={`w-1.5 rounded-sm transition-all ${i <= latestData.gsm_signal ? "bg-primary" : "bg-muted"}`}
+                              style={{ height: `${6 + i * 3}px` }}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-xs text-muted-foreground">{latestData.gsm_signal}/5</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">GPS</span>
+                      <span className={`text-sm font-medium ${latestData.latitude !== 0 ? "text-[hsl(142,76%,46%)]" : "text-destructive"}`}>
+                        {latestData.latitude !== 0 ? "Connected" : "No Fix"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Accident</span>
+                      <span className={`text-sm font-bold ${isAccident ? "text-destructive" : "text-[hsl(142,76%,46%)]"}`}>
+                        {isAccident ? "DETECTED" : "Safe"}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                Lat: {latestData.latitude}, Lng: {latestData.longitude}
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[400px] rounded-lg overflow-hidden border border-border">
-                <MapContainer
-                  center={[Number(latestData.latitude), Number(latestData.longitude)]}
-                  zoom={15}
-                  style={{ height: "100%", width: "100%" }}
-                  key={`${latestData.latitude}-${latestData.longitude}`}
-                >
-                  <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                  <Marker position={[Number(latestData.latitude), Number(latestData.longitude)]}>
-                    <Popup>
-                      <strong>{selectedDevice}</strong><br />
-                      Speed: {latestData.speed} km/h<br />
-                      {isAccident && <span style={{ color: "red" }}>⚠️ Accident Detected</span>}
-                    </Popup>
-                  </Marker>
-                </MapContainer>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+            </div>
 
-        {/* Last Updated */}
-        {latestData && (
-          <p className="text-xs text-muted-foreground text-center">
-            Last updated: {new Date(latestData.created_at).toLocaleString()} · Auto-refreshes every 5 seconds
-          </p>
+            {/* Row 2: Map */}
+            {latestData.latitude !== 0 && latestData.longitude !== 0 && (
+              <Card className="bg-card border-border shadow-card mb-6">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-primary" /> Live Vehicle Location
+                    </CardTitle>
+                    <span className="text-xs text-muted-foreground">
+                      {Number(latestData.latitude).toFixed(4)}°, {Number(latestData.longitude).toFixed(4)}°
+                    </span>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[400px] rounded-lg overflow-hidden border border-border">
+                    <MapContainer
+                      center={[Number(latestData.latitude), Number(latestData.longitude)]}
+                      zoom={15}
+                      style={{ height: "100%", width: "100%" }}
+                      key={`${latestData.latitude}-${latestData.longitude}`}
+                    >
+                      <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      />
+                      <Marker position={[Number(latestData.latitude), Number(latestData.longitude)]}>
+                        <Popup>
+                          <div className="text-sm">
+                            <strong>{selectedDevice}</strong><br />
+                            Speed: {latestData.speed} km/h<br />
+                            SpO2: {latestData.spo2}% | BPM: {latestData.bpm}<br />
+                            Fuel: {latestData.fuel}%<br />
+                            {isAccident && <span style={{ color: "red" }}>⚠️ Accident Detected</span>}
+                          </div>
+                        </Popup>
+                      </Marker>
+                    </MapContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Last Updated */}
+            <p className="text-xs text-muted-foreground text-center">
+              Last updated: {new Date(latestData.created_at).toLocaleString()} · Auto-refreshes every 5s
+            </p>
+          </>
         )}
       </main>
     </div>
