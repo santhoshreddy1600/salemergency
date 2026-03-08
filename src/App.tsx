@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import JoinTeam from "./pages/JoinTeam";
 import Admin from "./pages/Admin";
+import Dashboard from "./pages/Dashboard";
 
 const queryClient = new QueryClient();
 
