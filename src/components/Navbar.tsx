@@ -94,6 +94,11 @@ const Navbar = () => {
                   <User className="mr-1 h-4 w-4" /> Product Owner
                 </Button>
               </Link>
+              <Link to="/signup">
+                <Button variant="hero" size="sm">
+                  <LogIn className="mr-1 h-4 w-4" /> User
+                </Button>
+              </Link>
             </>
           )}
         </div>
