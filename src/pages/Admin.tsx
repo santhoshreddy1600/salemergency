@@ -301,10 +301,11 @@ const Admin = () => {
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label htmlFor="deviceName" className="text-muted-foreground">Device Name</Label>
+                      <Label htmlFor="devicePassword" className="text-muted-foreground">Password</Label>
                       <Input
-                        id="deviceName"
-                        placeholder="My SAL Device"
+                        id="devicePassword"
+                        type="password"
+                        placeholder="Login password"
                         value={newDeviceName}
                         onChange={(e) => setNewDeviceName(e.target.value)}
                         required
