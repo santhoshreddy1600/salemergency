@@ -344,6 +344,7 @@ const Admin = () => {
                       <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Name</th>
                       <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Owner</th>
                       <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Created</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">API</th>
                       <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Actions</th>
                     </tr>
                   </thead>
