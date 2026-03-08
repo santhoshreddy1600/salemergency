@@ -104,9 +104,14 @@ const Navbar = () => {
                 </Button>
               </Link>
               {user ? (
-                <Button variant="ghost" size="sm" onClick={() => { handleLogout(); setOpen(false); }}>
-                  <LogOut className="mr-1 h-4 w-4" /> Logout
-                </Button>
+                <>
+                  <Link to="/dashboard" onClick={() => setOpen(false)}>
+                    <Button variant="ghost" size="sm" className="w-full">Dashboard</Button>
+                  </Link>
+                  <Button variant="ghost" size="sm" onClick={() => { handleLogout(); setOpen(false); }}>
+                    <LogOut className="mr-1 h-4 w-4" /> Logout
+                  </Button>
+                </>
               ) : (
                 <Link to="/login" onClick={() => setOpen(false)}>
                   <Button variant="hero-outline" size="sm" className="w-full">

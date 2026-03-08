@@ -22,7 +22,6 @@ const Login = () => {
       toast.error(error.message);
     } else {
       toast.success("Logged in successfully!");
-      // Check if admin
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: roles } = await supabase.rpc("has_role", { _user_id: user.id, _role: "admin" });
@@ -31,7 +30,7 @@ const Login = () => {
           return;
         }
       }
-      navigate("/");
+      navigate("/dashboard");
     }
   };
 
