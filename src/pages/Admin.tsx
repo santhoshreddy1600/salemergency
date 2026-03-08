@@ -147,41 +147,61 @@ const Admin = () => {
   const handleCreateDevice = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newDeviceId.trim() || !newDeviceName.trim()) {
-      toast.error("Device ID and name are required");
+      toast.error("Device ID and password are required");
+      return;
+    }
+    if (newDeviceName.trim().length < 6) {
+      toast.error("Password must be at least 6 characters");
       return;
     }
     setCreating(true);
 
-    let ownerUserId: string | null = null;
-    if (newDeviceOwnerEmail.trim()) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("user_id")
-        .eq("email", newDeviceOwnerEmail.trim())
-        .maybeSingle();
-      if (profile) {
-        ownerUserId = profile.user_id;
-      } else {
-        toast.error("No user found with that email");
-        setCreating(false);
-        return;
+    // Step 1: Create a product owner account with Device ID as username
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-product-owner`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({
+          username: newDeviceId.trim(),
+          password: newDeviceName.trim(),
+          full_name: newDeviceId.trim(),
+        }),
       }
+    );
+
+    const result = await response.json();
+    if (!response.ok) {
+      toast.error(result.error || "Failed to create owner account");
+      setCreating(false);
+      return;
     }
 
+    const ownerUserId = result.user_id;
+
+    // Step 2: Create the device and assign to the new owner
     const { error } = await supabase.from("devices").insert({
       device_id: newDeviceId.trim(),
-      name: newDeviceName.trim(),
+      name: newDeviceId.trim(),
       owner_user_id: ownerUserId,
     });
 
     if (error) {
       toast.error(error.message.includes("duplicate") ? "Device ID already exists" : error.message);
     } else {
-      toast.success("Device created!");
+      toast.success(`Device "${newDeviceId}" created with login credentials!`);
       setNewDeviceId("");
       setNewDeviceName("");
       setNewDeviceOwnerEmail("");
       fetchDevices();
+      fetchProfiles();
     }
     setCreating(false);
   };
@@ -290,9 +310,12 @@ const Admin = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleCreateDevice} className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    This will create a device and a login account. The owner can sign in with the Device ID as username.
+                  </p>
+                  <form onSubmit={handleCreateDevice} className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-1">
-                      <Label htmlFor="deviceId" className="text-muted-foreground">Device ID</Label>
+                      <Label htmlFor="deviceId" className="text-muted-foreground">Device ID (Username)</Label>
                       <Input
                         id="deviceId"
                         placeholder="SAL001"
@@ -306,20 +329,11 @@ const Admin = () => {
                       <Input
                         id="devicePassword"
                         type="password"
-                        placeholder="Login password"
+                        placeholder="Min 6 characters"
                         value={newDeviceName}
                         onChange={(e) => setNewDeviceName(e.target.value)}
                         required
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="ownerEmail" className="text-muted-foreground">Owner Email (optional)</Label>
-                      <Input
-                        id="ownerEmail"
-                        type="email"
-                        placeholder="user@example.com"
-                        value={newDeviceOwnerEmail}
-                        onChange={(e) => setNewDeviceOwnerEmail(e.target.value)}
+                        minLength={6}
                       />
                     </div>
                     <div className="flex items-end">
