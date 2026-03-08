@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { device_id, speed, accident, latitude, longitude, gsm_signal } = body;
+    const { device_id, speed, accident, latitude, longitude, gsm_signal, spo2, bpm, fuel } = body;
 
     if (!device_id) {
       return new Response(JSON.stringify({ error: "device_id is required" }), {
@@ -41,6 +41,9 @@ Deno.serve(async (req) => {
       latitude: latitude ?? 0,
       longitude: longitude ?? 0,
       gsm_signal: gsm_signal ?? 0,
+      spo2: spo2 ?? 0,
+      bpm: bpm ?? 0,
+      fuel: fuel ?? 0,
     });
 
     if (error) {
