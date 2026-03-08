@@ -129,6 +129,13 @@ const Navbar = () => {
               </Link>
               {user ? (
                 <>
+                  {isAdmin && (
+                    <Link to="/admin" onClick={() => setOpen(false)}>
+                      <Button variant="hero" size="sm" className="w-full">
+                        <Shield className="mr-1 h-4 w-4" /> Admin
+                      </Button>
+                    </Link>
+                  )}
                   <Link to="/dashboard" onClick={() => setOpen(false)}>
                     <Button variant="ghost" size="sm" className="w-full">Dashboard</Button>
                   </Link>
