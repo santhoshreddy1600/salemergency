@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      device_data: {
+        Row: {
+          accident: number
+          created_at: string
+          device_id: string
+          gsm_signal: number
+          id: string
+          latitude: number
+          longitude: number
+          speed: number
+        }
+        Insert: {
+          accident?: number
+          created_at?: string
+          device_id: string
+          gsm_signal?: number
+          id?: string
+          latitude?: number
+          longitude?: number
+          speed?: number
+        }
+        Update: {
+          accident?: number
+          created_at?: string
+          device_id?: string
+          gsm_signal?: number
+          id?: string
+          latitude?: number
+          longitude?: number
+          speed?: number
+        }
+        Relationships: []
+      }
+      devices: {
+        Row: {
+          created_at: string
+          device_id: string
+          id: string
+          name: string
+          owner_user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          id?: string
+          name?: string
+          owner_user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          id?: string
+          name?: string
+          owner_user_id?: string | null
+        }
+        Relationships: []
+      }
       members: {
         Row: {
           created_at: string
