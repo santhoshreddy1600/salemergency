@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogIn, LogOut, User } from "lucide-react";
+import { Menu, X, LogIn, LogOut, User, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,21 +17,36 @@ const navLinks = [
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        checkAdminRole(session.user.id);
+      } else {
+        setIsAdmin(false);
+      }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        checkAdminRole(session.user.id);
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
 
+  const checkAdminRole = async (userId: string) => {
+    const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+    setIsAdmin(!!data);
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
+    setIsAdmin(false);
   };
 
   return (
@@ -58,6 +73,13 @@ const Navbar = () => {
           </Link>
           {user ? (
             <>
+              {isAdmin && (
+                <Link to="/admin">
+                  <Button variant="hero" size="sm">
+                    <Shield className="mr-1 h-4 w-4" /> Admin
+                  </Button>
+                </Link>
+              )}
               <Link to="/dashboard">
                 <Button variant="ghost" size="sm">Dashboard</Button>
               </Link>
@@ -107,6 +129,13 @@ const Navbar = () => {
               </Link>
               {user ? (
                 <>
+                  {isAdmin && (
+                    <Link to="/admin" onClick={() => setOpen(false)}>
+                      <Button variant="hero" size="sm" className="w-full">
+                        <Shield className="mr-1 h-4 w-4" /> Admin
+                      </Button>
+                    </Link>
+                  )}
                   <Link to="/dashboard" onClick={() => setOpen(false)}>
                     <Button variant="ghost" size="sm" className="w-full">Dashboard</Button>
                   </Link>
