@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, Users, Shield, ArrowLeft, Plus, Radio, Trash2 } from "lucide-react";
+import { LogOut, Users, Shield, ArrowLeft, Plus, Radio, Trash2, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
 interface Member {
@@ -36,16 +36,24 @@ const Admin = () => {
   const navigate = useNavigate();
   const [members, setMembers] = useState<Member[]>([]);
   const [devices, setDevices] = useState<Device[]>([]);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [activeTab, setActiveTab] = useState<"members" | "devices">("devices");
+  const [activeTab, setActiveTab] = useState<"members" | "devices" | "owners">("devices");
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showOwnerForm, setShowOwnerForm] = useState(false);
 
   // Device creation form
   const [newDeviceId, setNewDeviceId] = useState("");
   const [newDeviceName, setNewDeviceName] = useState("");
   const [newDeviceOwnerEmail, setNewDeviceOwnerEmail] = useState("");
   const [creating, setCreating] = useState(false);
+
+  // Product Owner creation form
+  const [ownerUsername, setOwnerUsername] = useState("");
+  const [ownerPassword, setOwnerPassword] = useState("");
+  const [ownerFullName, setOwnerFullName] = useState("");
+  const [creatingOwner, setCreatingOwner] = useState(false);
 
   useEffect(() => {
     checkAdmin();
