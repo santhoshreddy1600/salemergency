@@ -353,9 +353,8 @@ const Admin = () => {
                   </thead>
                   <tbody className="divide-y divide-border">
                     {devices.map((device, i) => {
-                      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/device-data`;
+                      const uniqueApiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/device-data?api_key=${device.api_key || ""}`;
                       const payload = JSON.stringify({
-                        device_id: device.device_id,
                         speed: 0, accident: 0, latitude: 0, longitude: 0,
                         gsm_signal: 0, spo2: 0, bpm: 0, fuel: 0,
                       }, null, 2);
@@ -397,16 +396,17 @@ const Admin = () => {
                               <td colSpan={7} className="px-4 py-4 bg-muted/20">
                                 <div className="space-y-3">
                                   <div className="space-y-1">
-                                    <Label className="text-muted-foreground text-xs">API URL (POST) for {device.device_id}</Label>
+                                    <Label className="text-muted-foreground text-xs font-bold">Unique API for {device.device_id}</Label>
                                     <div className="flex items-center gap-2">
-                                      <Input readOnly value={apiUrl} className="font-mono text-xs bg-muted/50" />
-                                      <Button variant="outline" size="sm" onClick={() => { navigator.clipboard.writeText(apiUrl); toast.success("API URL copied!"); }}>
+                                      <Input readOnly value={uniqueApiUrl} className="font-mono text-xs bg-muted/50" />
+                                      <Button variant="outline" size="sm" onClick={() => { navigator.clipboard.writeText(uniqueApiUrl); toast.success("API URL copied!"); }}>
                                         <Copy className="h-4 w-4" />
                                       </Button>
                                     </div>
+                                    <p className="text-xs text-muted-foreground">This URL is unique to this device. No need to send <code className="text-primary">device_id</code> in the payload.</p>
                                   </div>
                                   <div className="space-y-1">
-                                    <Label className="text-muted-foreground text-xs">JSON Payload for {device.device_id}</Label>
+                                    <Label className="text-muted-foreground text-xs">JSON Payload (send via POST)</Label>
                                     <div className="relative">
                                       <pre className="rounded-lg bg-muted/50 border border-border p-3 text-xs text-foreground font-mono overflow-x-auto whitespace-pre-wrap">{payload}</pre>
                                       <Button
