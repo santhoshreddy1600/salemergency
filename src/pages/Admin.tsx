@@ -196,53 +196,71 @@ const Admin = () => {
         {/* Devices Tab */}
         {activeTab === "devices" && (
           <>
-            {/* Create Device Form */}
-            <Card className="bg-card border-border mb-8">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-foreground">
-                  <Plus className="h-5 w-5 text-primary" /> Create New Device
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleCreateDevice} className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="space-y-1">
-                    <Label htmlFor="deviceId" className="text-muted-foreground">Device ID</Label>
-                    <Input
-                      id="deviceId"
-                      placeholder="SAL001"
-                      value={newDeviceId}
-                      onChange={(e) => setNewDeviceId(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="deviceName" className="text-muted-foreground">Device Name</Label>
-                    <Input
-                      id="deviceName"
-                      placeholder="My SAL Device"
-                      value={newDeviceName}
-                      onChange={(e) => setNewDeviceName(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="ownerEmail" className="text-muted-foreground">Owner Email (optional)</Label>
-                    <Input
-                      id="ownerEmail"
-                      type="email"
-                      placeholder="user@example.com"
-                      value={newDeviceOwnerEmail}
-                      onChange={(e) => setNewDeviceOwnerEmail(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex items-end">
-                    <Button type="submit" className="w-full" disabled={creating}>
-                      {creating ? "Creating..." : "Create Device"}
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
+            {/* Header with Create Button */}
+            <div className="mb-6 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
+                  <Radio className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h2 className="font-display text-2xl font-bold text-foreground">Devices</h2>
+                  <p className="text-muted-foreground">{devices.length} registered devices</p>
+                </div>
+              </div>
+              <Button onClick={() => setShowCreateForm(!showCreateForm)}>
+                <Plus className="mr-2 h-4 w-4" /> {showCreateForm ? "Cancel" : "Create Device"}
+              </Button>
+            </div>
+
+            {/* Create Device Form (toggled) */}
+            {showCreateForm && (
+              <Card className="bg-card border-border mb-8">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-foreground">
+                    <Plus className="h-5 w-5 text-primary" /> New Device
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleCreateDevice} className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="space-y-1">
+                      <Label htmlFor="deviceId" className="text-muted-foreground">Device ID</Label>
+                      <Input
+                        id="deviceId"
+                        placeholder="SAL001"
+                        value={newDeviceId}
+                        onChange={(e) => setNewDeviceId(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="deviceName" className="text-muted-foreground">Device Name</Label>
+                      <Input
+                        id="deviceName"
+                        placeholder="My SAL Device"
+                        value={newDeviceName}
+                        onChange={(e) => setNewDeviceName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="ownerEmail" className="text-muted-foreground">Owner Email (optional)</Label>
+                      <Input
+                        id="ownerEmail"
+                        type="email"
+                        placeholder="user@example.com"
+                        value={newDeviceOwnerEmail}
+                        onChange={(e) => setNewDeviceOwnerEmail(e.target.value)}
+                      />
+                    </div>
+                    <div className="flex items-end">
+                      <Button type="submit" className="w-full" disabled={creating}>
+                        {creating ? "Creating..." : "Create Device"}
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Devices Table */}
             <div className="mb-4 flex items-center gap-4">
