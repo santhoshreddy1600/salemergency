@@ -9,17 +9,21 @@ import { LogIn } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    // If username doesn't contain @, append @sal.local
+    const email = username.includes("@") ? username : `${username}@sal.local`;
+
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) {
-      toast.error(error.message);
+      toast.error("Invalid username or password");
     } else {
       toast.success("Logged in successfully!");
       const { data: { user } } = await supabase.auth.getUser();
@@ -42,18 +46,18 @@ const Login = () => {
             <span className="text-gradient">SAL</span>
           </Link>
           <h1 className="font-display text-3xl font-bold text-foreground mt-4">Product Owner Login</h1>
-          <p className="text-muted-foreground mt-2">Sign in with your email and password</p>
+          <p className="text-muted-foreground mt-2">Sign in with your username and password</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6 rounded-xl border border-border bg-card p-8">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="username">Username</Label>
             <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="username"
+              type="text"
+              placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>
@@ -72,12 +76,6 @@ const Login = () => {
             <LogIn className="mr-2 h-4 w-4" />
             {loading ? "Signing in..." : "Sign In"}
           </Button>
-          <p className="text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
-            <Link to="/signup" className="text-primary hover:underline">
-              Sign Up
-            </Link>
-          </p>
         </form>
       </div>
     </div>

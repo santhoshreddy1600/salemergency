@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, Users, Shield, ArrowLeft, Plus, Radio, Trash2 } from "lucide-react";
+import { LogOut, Users, Shield, ArrowLeft, Plus, Radio, Trash2, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
 interface Member {
@@ -30,22 +30,31 @@ interface Profile {
   user_id: string;
   email: string | null;
   full_name: string | null;
+  created_at: string;
 }
 
 const Admin = () => {
   const navigate = useNavigate();
   const [members, setMembers] = useState<Member[]>([]);
   const [devices, setDevices] = useState<Device[]>([]);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [activeTab, setActiveTab] = useState<"members" | "devices">("devices");
+  const [activeTab, setActiveTab] = useState<"members" | "devices" | "owners">("devices");
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showOwnerForm, setShowOwnerForm] = useState(false);
 
   // Device creation form
   const [newDeviceId, setNewDeviceId] = useState("");
   const [newDeviceName, setNewDeviceName] = useState("");
   const [newDeviceOwnerEmail, setNewDeviceOwnerEmail] = useState("");
   const [creating, setCreating] = useState(false);
+
+  // Product Owner creation form
+  const [ownerUsername, setOwnerUsername] = useState("");
+  const [ownerPassword, setOwnerPassword] = useState("");
+  const [ownerFullName, setOwnerFullName] = useState("");
+  const [creatingOwner, setCreatingOwner] = useState(false);
 
   useEffect(() => {
     checkAdmin();
@@ -66,6 +75,7 @@ const Admin = () => {
     setIsAdmin(true);
     fetchMembers();
     fetchDevices();
+    fetchProfiles();
   };
 
   const fetchMembers = async () => {
@@ -79,6 +89,57 @@ const Admin = () => {
     const { data, error } = await supabase.from("devices").select("*").order("created_at", { ascending: false });
     if (error) toast.error("Failed to load devices");
     else setDevices(data || []);
+  };
+
+  const fetchProfiles = async () => {
+    const { data, error } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
+    if (!error) setProfiles(data || []);
+  };
+
+  const handleCreateOwner = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ownerUsername.trim() || !ownerPassword.trim()) {
+      toast.error("Username and password are required");
+      return;
+    }
+    if (ownerPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    setCreatingOwner(true);
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-product-owner`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({
+          username: ownerUsername.trim(),
+          password: ownerPassword,
+          full_name: ownerFullName.trim() || ownerUsername.trim(),
+        }),
+      }
+    );
+
+    const result = await response.json();
+    if (!response.ok) {
+      toast.error(result.error || "Failed to create product owner");
+    } else {
+      toast.success(`Product owner "${ownerUsername}" created successfully!`);
+      setOwnerUsername("");
+      setOwnerPassword("");
+      setOwnerFullName("");
+      setShowOwnerForm(false);
+      fetchProfiles();
+    }
+    setCreatingOwner(false);
   };
 
   const handleCreateDevice = async (e: React.FormEvent) => {
@@ -184,6 +245,12 @@ const Admin = () => {
             onClick={() => setActiveTab("devices")}
           >
             <Radio className="mr-2 h-4 w-4" /> Devices
+          </Button>
+          <Button
+            variant={activeTab === "owners" ? "default" : "outline"}
+            onClick={() => setActiveTab("owners")}
+          >
+            <UserPlus className="mr-2 h-4 w-4" /> Product Owners
           </Button>
           <Button
             variant={activeTab === "members" ? "default" : "outline"}
@@ -311,7 +378,107 @@ const Admin = () => {
           </>
         )}
 
-        {/* Members Tab */}
+        {/* Product Owners Tab */}
+        {activeTab === "owners" && (
+          <>
+            <div className="mb-6 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
+                  <UserPlus className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h2 className="font-display text-2xl font-bold text-foreground">Product Owners</h2>
+                  <p className="text-muted-foreground">Manage device owner accounts</p>
+                </div>
+              </div>
+              <Button onClick={() => setShowOwnerForm(!showOwnerForm)}>
+                <Plus className="mr-2 h-4 w-4" /> {showOwnerForm ? "Cancel" : "Create Product Owner"}
+              </Button>
+            </div>
+
+            {showOwnerForm && (
+              <Card className="bg-card border-border mb-8">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-foreground">
+                    <UserPlus className="h-5 w-5 text-primary" /> New Product Owner
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleCreateOwner} className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="space-y-1">
+                      <Label className="text-muted-foreground">Username</Label>
+                      <Input
+                        placeholder="owner1"
+                        value={ownerUsername}
+                        onChange={(e) => setOwnerUsername(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-muted-foreground">Password</Label>
+                      <Input
+                        type="password"
+                        placeholder="Min 6 characters"
+                        value={ownerPassword}
+                        onChange={(e) => setOwnerPassword(e.target.value)}
+                        required
+                        minLength={6}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-muted-foreground">Full Name (optional)</Label>
+                      <Input
+                        placeholder="John Doe"
+                        value={ownerFullName}
+                        onChange={(e) => setOwnerFullName(e.target.value)}
+                      />
+                    </div>
+                    <div className="flex items-end">
+                      <Button type="submit" className="w-full" disabled={creatingOwner}>
+                        {creatingOwner ? "Creating..." : "Create Owner"}
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            )}
+
+            {profiles.length === 0 ? (
+              <div className="rounded-xl border border-border bg-card p-12 text-center">
+                <UserPlus className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">No product owners created yet.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-xl border border-border">
+                <table className="w-full">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">#</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Username</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Full Name</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Created</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {profiles.map((profile, i) => (
+                      <tr key={profile.user_id} className="hover:bg-muted/30 transition-colors">
+                        <td className="px-4 py-3 text-sm text-foreground">{i + 1}</td>
+                        <td className="px-4 py-3 text-sm font-medium text-primary">
+                          {profile.email?.replace("@sal.local", "") || "—"}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-foreground">{profile.full_name || "—"}</td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">
+                          {new Date(profile.created_at || "").toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
+        )}
+
         {activeTab === "members" && (
           <>
             <div className="mb-4 flex items-center gap-4">
