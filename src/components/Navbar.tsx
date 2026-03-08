@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogIn, LogOut } from "lucide-react";
+import { Menu, X, LogIn, LogOut, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -66,11 +66,13 @@ const Navbar = () => {
               </Button>
             </>
           ) : (
-            <Link to="/login">
-              <Button variant="hero-outline" size="sm">
-                <LogIn className="mr-1 h-4 w-4" /> Login
-              </Button>
-            </Link>
+            <>
+              <Link to="/login">
+                <Button variant="hero-outline" size="sm">
+                  <User className="mr-1 h-4 w-4" /> Product Owner
+                </Button>
+              </Link>
+            </>
           )}
         </div>
 
@@ -115,7 +117,7 @@ const Navbar = () => {
               ) : (
                 <Link to="/login" onClick={() => setOpen(false)}>
                   <Button variant="hero-outline" size="sm" className="w-full">
-                    <LogIn className="mr-1 h-4 w-4" /> Login
+                    <User className="mr-1 h-4 w-4" /> Product Owner
                   </Button>
                 </Link>
               )}
