@@ -147,41 +147,61 @@ const Admin = () => {
   const handleCreateDevice = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newDeviceId.trim() || !newDeviceName.trim()) {
-      toast.error("Device ID and name are required");
+      toast.error("Device ID and password are required");
+      return;
+    }
+    if (newDeviceName.trim().length < 6) {
+      toast.error("Password must be at least 6 characters");
       return;
     }
     setCreating(true);
 
-    let ownerUserId: string | null = null;
-    if (newDeviceOwnerEmail.trim()) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("user_id")
-        .eq("email", newDeviceOwnerEmail.trim())
-        .maybeSingle();
-      if (profile) {
-        ownerUserId = profile.user_id;
-      } else {
-        toast.error("No user found with that email");
-        setCreating(false);
-        return;
+    // Step 1: Create a product owner account with Device ID as username
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-product-owner`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({
+          username: newDeviceId.trim(),
+          password: newDeviceName.trim(),
+          full_name: newDeviceId.trim(),
+        }),
       }
+    );
+
+    const result = await response.json();
+    if (!response.ok) {
+      toast.error(result.error || "Failed to create owner account");
+      setCreating(false);
+      return;
     }
 
+    const ownerUserId = result.user_id;
+
+    // Step 2: Create the device and assign to the new owner
     const { error } = await supabase.from("devices").insert({
       device_id: newDeviceId.trim(),
-      name: newDeviceName.trim(),
+      name: newDeviceId.trim(),
       owner_user_id: ownerUserId,
     });
 
     if (error) {
       toast.error(error.message.includes("duplicate") ? "Device ID already exists" : error.message);
     } else {
-      toast.success("Device created!");
+      toast.success(`Device "${newDeviceId}" created with login credentials!`);
       setNewDeviceId("");
       setNewDeviceName("");
       setNewDeviceOwnerEmail("");
       fetchDevices();
+      fetchProfiles();
     }
     setCreating(false);
   };
