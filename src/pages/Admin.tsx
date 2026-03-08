@@ -39,6 +39,7 @@ const Admin = () => {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeTab, setActiveTab] = useState<"members" | "devices">("devices");
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   // Device creation form
   const [newDeviceId, setNewDeviceId] = useState("");
