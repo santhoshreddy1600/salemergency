@@ -30,6 +30,7 @@ interface Profile {
   user_id: string;
   email: string | null;
   full_name: string | null;
+  created_at: string;
 }
 
 const Admin = () => {
