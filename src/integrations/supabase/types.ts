@@ -58,6 +58,7 @@ export type Database = {
       }
       devices: {
         Row: {
+          api_key: string | null
           created_at: string
           device_id: string
           id: string
@@ -65,6 +66,7 @@ export type Database = {
           owner_user_id: string | null
         }
         Insert: {
+          api_key?: string | null
           created_at?: string
           device_id: string
           id?: string
@@ -72,6 +74,7 @@ export type Database = {
           owner_user_id?: string | null
         }
         Update: {
+          api_key?: string | null
           created_at?: string
           device_id?: string
           id?: string
