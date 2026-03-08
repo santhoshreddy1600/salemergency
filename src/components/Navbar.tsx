@@ -46,6 +46,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
+    setIsAdmin(false);
   };
 
   return (
