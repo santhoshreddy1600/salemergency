@@ -351,29 +351,74 @@ const Admin = () => {
                   <tbody className="divide-y divide-border">
                     {devices.map((device, i) => {
                       const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/device-data`;
-                      const samplePayload = `{"device_id":"${device.device_id}","speed":0,"accident":0,"latitude":0,"longitude":0,"gsm_signal":0,"spo2":0,"bpm":0,"fuel":0}`;
+                      const payload = JSON.stringify({
+                        device_id: device.device_id,
+                        speed: 0, accident: 0, latitude: 0, longitude: 0,
+                        gsm_signal: 0, spo2: 0, bpm: 0, fuel: 0,
+                      }, null, 2);
+                      const isExpanded = expandedApiDevice === device.device_id;
                       return (
-                        <tr key={device.id} className="hover:bg-muted/30 transition-colors align-top">
-                          <td className="px-4 py-3 text-sm text-foreground">{i + 1}</td>
-                          <td className="px-4 py-3 text-sm font-medium text-primary">{device.device_id}</td>
-                          <td className="px-4 py-3 text-sm text-foreground">{device.name}</td>
-                          <td className="px-4 py-3 text-sm text-muted-foreground">
-                            {device.owner_user_id ? device.owner_user_id.slice(0, 8) + "..." : "Unassigned"}
-                          </td>
-                          <td className="px-4 py-3 text-sm text-muted-foreground">
-                            {new Date(device.created_at).toLocaleDateString()}
-                          </td>
-                          <td className="px-4 py-3">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteDevice(device.id)}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </td>
-                        </tr>
+                        <React.Fragment key={device.id}>
+                          <tr className="hover:bg-muted/30 transition-colors align-top">
+                            <td className="px-4 py-3 text-sm text-foreground">{i + 1}</td>
+                            <td className="px-4 py-3 text-sm font-medium text-primary">{device.device_id}</td>
+                            <td className="px-4 py-3 text-sm text-foreground">{device.name}</td>
+                            <td className="px-4 py-3 text-sm text-muted-foreground">
+                              {device.owner_user_id ? device.owner_user_id.slice(0, 8) + "..." : "Unassigned"}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-muted-foreground">
+                              {new Date(device.created_at).toLocaleDateString()}
+                            </td>
+                            <td className="px-4 py-3">
+                              <Button
+                                variant={isExpanded ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setExpandedApiDevice(isExpanded ? null : device.device_id)}
+                              >
+                                <Radio className="mr-1 h-3 w-3" /> API
+                              </Button>
+                            </td>
+                            <td className="px-4 py-3">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteDevice(device.id)}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </td>
+                          </tr>
+                          {isExpanded && (
+                            <tr>
+                              <td colSpan={7} className="px-4 py-4 bg-muted/20">
+                                <div className="space-y-3">
+                                  <div className="space-y-1">
+                                    <Label className="text-muted-foreground text-xs">API URL (POST) for {device.device_id}</Label>
+                                    <div className="flex items-center gap-2">
+                                      <Input readOnly value={apiUrl} className="font-mono text-xs bg-muted/50" />
+                                      <Button variant="outline" size="sm" onClick={() => { navigator.clipboard.writeText(apiUrl); toast.success("API URL copied!"); }}>
+                                        <Copy className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                  <div className="space-y-1">
+                                    <Label className="text-muted-foreground text-xs">JSON Payload for {device.device_id}</Label>
+                                    <div className="relative">
+                                      <pre className="rounded-lg bg-muted/50 border border-border p-3 text-xs text-foreground font-mono overflow-x-auto whitespace-pre-wrap">{payload}</pre>
+                                      <Button
+                                        variant="outline" size="sm" className="absolute top-2 right-2"
+                                        onClick={() => { navigator.clipboard.writeText(payload); toast.success("Payload copied!"); }}
+                                      >
+                                        <Copy className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
                       );
                     })}
                   </tbody>
