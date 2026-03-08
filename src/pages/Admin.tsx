@@ -310,9 +310,12 @@ const Admin = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleCreateDevice} className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    This will create a device and a login account. The owner can sign in with the Device ID as username.
+                  </p>
+                  <form onSubmit={handleCreateDevice} className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-1">
-                      <Label htmlFor="deviceId" className="text-muted-foreground">Device ID</Label>
+                      <Label htmlFor="deviceId" className="text-muted-foreground">Device ID (Username)</Label>
                       <Input
                         id="deviceId"
                         placeholder="SAL001"
@@ -326,20 +329,11 @@ const Admin = () => {
                       <Input
                         id="devicePassword"
                         type="password"
-                        placeholder="Login password"
+                        placeholder="Min 6 characters"
                         value={newDeviceName}
                         onChange={(e) => setNewDeviceName(e.target.value)}
                         required
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="ownerEmail" className="text-muted-foreground">Owner Email (optional)</Label>
-                      <Input
-                        id="ownerEmail"
-                        type="email"
-                        placeholder="user@example.com"
-                        value={newDeviceOwnerEmail}
-                        onChange={(e) => setNewDeviceOwnerEmail(e.target.value)}
+                        minLength={6}
                       />
                     </div>
                     <div className="flex items-end">
