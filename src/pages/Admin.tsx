@@ -348,29 +348,33 @@ const Admin = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {devices.map((device, i) => (
-                      <tr key={device.id} className="hover:bg-muted/30 transition-colors">
-                        <td className="px-4 py-3 text-sm text-foreground">{i + 1}</td>
-                        <td className="px-4 py-3 text-sm font-medium text-primary">{device.device_id}</td>
-                        <td className="px-4 py-3 text-sm text-foreground">{device.name}</td>
-                        <td className="px-4 py-3 text-sm text-muted-foreground">
-                          {device.owner_user_id ? device.owner_user_id.slice(0, 8) + "..." : "Unassigned"}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-muted-foreground">
-                          {new Date(device.created_at).toLocaleDateString()}
-                        </td>
-                        <td className="px-4 py-3">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteDevice(device.id)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
+                    {devices.map((device, i) => {
+                      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/device-data`;
+                      const samplePayload = `{"device_id":"${device.device_id}","speed":0,"accident":0,"latitude":0,"longitude":0,"gsm_signal":0,"spo2":0,"bpm":0,"fuel":0}`;
+                      return (
+                        <tr key={device.id} className="hover:bg-muted/30 transition-colors align-top">
+                          <td className="px-4 py-3 text-sm text-foreground">{i + 1}</td>
+                          <td className="px-4 py-3 text-sm font-medium text-primary">{device.device_id}</td>
+                          <td className="px-4 py-3 text-sm text-foreground">{device.name}</td>
+                          <td className="px-4 py-3 text-sm text-muted-foreground">
+                            {device.owner_user_id ? device.owner_user_id.slice(0, 8) + "..." : "Unassigned"}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-muted-foreground">
+                            {new Date(device.created_at).toLocaleDateString()}
+                          </td>
+                          <td className="px-4 py-3">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteDevice(device.id)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
