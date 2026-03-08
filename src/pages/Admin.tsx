@@ -23,6 +23,7 @@ interface Device {
   device_id: string;
   name: string;
   owner_user_id: string | null;
+  api_key: string | null;
   created_at: string;
 }
 
