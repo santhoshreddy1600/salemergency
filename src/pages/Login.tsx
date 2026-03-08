@@ -41,8 +41,8 @@ const Login = () => {
           <Link to="/" className="font-display text-2xl font-bold tracking-tight">
             <span className="text-gradient">SAL</span>
           </Link>
-          <h1 className="font-display text-3xl font-bold text-foreground mt-4">Welcome Back</h1>
-          <p className="text-muted-foreground mt-2">Sign in to your account</p>
+          <h1 className="font-display text-3xl font-bold text-foreground mt-4">Product Owner Login</h1>
+          <p className="text-muted-foreground mt-2">Sign in with your email and password</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6 rounded-xl border border-border bg-card p-8">
