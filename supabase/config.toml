@@ -1,1 +1,4 @@
 project_id = "nibcleswdsxuczwksqnn"
+
+[functions.device-data]
+verify_jwt = false
