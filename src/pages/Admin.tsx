@@ -246,6 +246,12 @@ const Admin = () => {
             <Radio className="mr-2 h-4 w-4" /> Devices
           </Button>
           <Button
+            variant={activeTab === "owners" ? "default" : "outline"}
+            onClick={() => setActiveTab("owners")}
+          >
+            <UserPlus className="mr-2 h-4 w-4" /> Product Owners
+          </Button>
+          <Button
             variant={activeTab === "members" ? "default" : "outline"}
             onClick={() => setActiveTab("members")}
           >
