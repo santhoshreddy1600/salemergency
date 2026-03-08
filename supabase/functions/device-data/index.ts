@@ -19,31 +19,53 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const body = await req.json();
-    const { device_id, speed, accident, latitude, longitude, gsm_signal, spo2, bpm, fuel } = body;
-
-    if (!device_id) {
-      return new Response(JSON.stringify({ error: "device_id is required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const url = new URL(req.url);
+    const apiKey = url.searchParams.get("api_key");
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    const body = await req.json();
+
+    let deviceId: string;
+
+    if (apiKey) {
+      // Look up device by api_key
+      const { data: device, error: deviceError } = await supabase
+        .from("devices")
+        .select("device_id")
+        .eq("api_key", apiKey)
+        .maybeSingle();
+
+      if (deviceError || !device) {
+        return new Response(JSON.stringify({ error: "Invalid API key" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      deviceId = device.device_id;
+    } else if (body.device_id) {
+      // Fallback: use device_id from body (legacy support)
+      deviceId = body.device_id;
+    } else {
+      return new Response(JSON.stringify({ error: "api_key parameter or device_id is required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { error } = await supabase.from("device_data").insert({
-      device_id,
-      speed: speed ?? 0,
-      accident: accident ?? 0,
-      latitude: latitude ?? 0,
-      longitude: longitude ?? 0,
-      gsm_signal: gsm_signal ?? 0,
-      spo2: spo2 ?? 0,
-      bpm: bpm ?? 0,
-      fuel: fuel ?? 0,
+      device_id: deviceId,
+      speed: body.speed ?? 0,
+      accident: body.accident ?? 0,
+      latitude: body.latitude ?? 0,
+      longitude: body.longitude ?? 0,
+      gsm_signal: body.gsm_signal ?? 0,
+      spo2: body.spo2 ?? 0,
+      bpm: body.bpm ?? 0,
+      fuel: body.fuel ?? 0,
     });
 
     if (error) {
@@ -53,7 +75,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ success: true, device_id: deviceId }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

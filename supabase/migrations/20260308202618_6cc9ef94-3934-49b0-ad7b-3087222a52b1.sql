@@ -1,0 +1,1 @@
+ALTER TABLE public.devices ADD COLUMN IF NOT EXISTS api_key text UNIQUE DEFAULT gen_random_uuid()::text;
