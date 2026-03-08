@@ -42,8 +42,8 @@ const Signup = () => {
           <Link to="/" className="font-display text-2xl font-bold tracking-tight">
             <span className="text-gradient">SAL</span>
           </Link>
-          <h1 className="font-display text-3xl font-bold text-foreground mt-4">Create Account</h1>
-          <p className="text-muted-foreground mt-2">Join the SAL community</p>
+          <h1 className="font-display text-3xl font-bold text-foreground mt-4">User Registration</h1>
+          <p className="text-muted-foreground mt-2">Create an account with your Gmail and password</p>
         </div>
 
         <form onSubmit={handleSignup} className="space-y-6 rounded-xl border border-border bg-card p-8">
