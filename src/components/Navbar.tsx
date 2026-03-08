@@ -73,6 +73,13 @@ const Navbar = () => {
           </Link>
           {user ? (
             <>
+              {isAdmin && (
+                <Link to="/admin">
+                  <Button variant="hero" size="sm">
+                    <Shield className="mr-1 h-4 w-4" /> Admin
+                  </Button>
+                </Link>
+              )}
               <Link to="/dashboard">
                 <Button variant="ghost" size="sm">Dashboard</Button>
               </Link>
