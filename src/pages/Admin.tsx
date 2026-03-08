@@ -262,17 +262,6 @@ const Admin = () => {
               </Card>
             )}
 
-            {/* Devices Table */}
-            <div className="mb-4 flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
-                <Radio className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h2 className="font-display text-2xl font-bold text-foreground">Devices</h2>
-                <p className="text-muted-foreground">{devices.length} registered devices</p>
-              </div>
-            </div>
-
             {devices.length === 0 ? (
               <div className="rounded-xl border border-border bg-card p-12 text-center">
                 <Radio className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
