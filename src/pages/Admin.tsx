@@ -74,6 +74,7 @@ const Admin = () => {
     setIsAdmin(true);
     fetchMembers();
     fetchDevices();
+    fetchProfiles();
   };
 
   const fetchMembers = async () => {
