@@ -66,11 +66,13 @@ const Navbar = () => {
               </Button>
             </>
           ) : (
-            <Link to="/login">
-              <Button variant="hero-outline" size="sm">
-                <LogIn className="mr-1 h-4 w-4" /> Login
-              </Button>
-            </Link>
+            <>
+              <Link to="/login">
+                <Button variant="hero-outline" size="sm">
+                  <User className="mr-1 h-4 w-4" /> Product Owner
+                </Button>
+              </Link>
+            </>
           )}
         </div>
 
