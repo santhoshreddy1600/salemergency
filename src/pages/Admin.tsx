@@ -41,6 +41,7 @@ const Admin = () => {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeTab, setActiveTab] = useState<"members" | "devices" | "owners">("devices");
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [expandedApiDevice, setExpandedApiDevice] = useState<string | null>(null);
   const [showOwnerForm, setShowOwnerForm] = useState(false);
 
