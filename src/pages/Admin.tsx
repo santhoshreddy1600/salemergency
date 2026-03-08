@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut, Users, Shield, ArrowLeft } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { LogOut, Users, Shield, ArrowLeft, Plus, Radio, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Member {
@@ -15,11 +18,33 @@ interface Member {
   created_at: string;
 }
 
+interface Device {
+  id: string;
+  device_id: string;
+  name: string;
+  owner_user_id: string | null;
+  created_at: string;
+}
+
+interface Profile {
+  user_id: string;
+  email: string | null;
+  full_name: string | null;
+}
+
 const Admin = () => {
   const navigate = useNavigate();
   const [members, setMembers] = useState<Member[]>([]);
+  const [devices, setDevices] = useState<Device[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [activeTab, setActiveTab] = useState<"members" | "devices">("devices");
+
+  // Device creation form
+  const [newDeviceId, setNewDeviceId] = useState("");
+  const [newDeviceName, setNewDeviceName] = useState("");
+  const [newDeviceOwnerEmail, setNewDeviceOwnerEmail] = useState("");
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     checkAdmin();
@@ -39,16 +64,71 @@ const Admin = () => {
     }
     setIsAdmin(true);
     fetchMembers();
+    fetchDevices();
   };
 
   const fetchMembers = async () => {
     const { data, error } = await supabase.from("members").select("*").order("created_at", { ascending: false });
-    if (error) {
-      toast.error("Failed to load members");
-    } else {
-      setMembers(data || []);
-    }
+    if (error) toast.error("Failed to load members");
+    else setMembers(data || []);
     setLoading(false);
+  };
+
+  const fetchDevices = async () => {
+    const { data, error } = await supabase.from("devices").select("*").order("created_at", { ascending: false });
+    if (error) toast.error("Failed to load devices");
+    else setDevices(data || []);
+  };
+
+  const handleCreateDevice = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newDeviceId.trim() || !newDeviceName.trim()) {
+      toast.error("Device ID and name are required");
+      return;
+    }
+    setCreating(true);
+
+    let ownerUserId: string | null = null;
+    if (newDeviceOwnerEmail.trim()) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("user_id")
+        .eq("email", newDeviceOwnerEmail.trim())
+        .maybeSingle();
+      if (profile) {
+        ownerUserId = profile.user_id;
+      } else {
+        toast.error("No user found with that email");
+        setCreating(false);
+        return;
+      }
+    }
+
+    const { error } = await supabase.from("devices").insert({
+      device_id: newDeviceId.trim(),
+      name: newDeviceName.trim(),
+      owner_user_id: ownerUserId,
+    });
+
+    if (error) {
+      toast.error(error.message.includes("duplicate") ? "Device ID already exists" : error.message);
+    } else {
+      toast.success("Device created!");
+      setNewDeviceId("");
+      setNewDeviceName("");
+      setNewDeviceOwnerEmail("");
+      fetchDevices();
+    }
+    setCreating(false);
+  };
+
+  const handleDeleteDevice = async (id: string) => {
+    const { error } = await supabase.from("devices").delete().eq("id", id);
+    if (error) toast.error("Failed to delete device");
+    else {
+      toast.success("Device deleted");
+      fetchDevices();
+    }
   };
 
   const handleLogout = async () => {
@@ -85,6 +165,9 @@ const Admin = () => {
                 <ArrowLeft className="mr-1 h-4 w-4" /> Home
               </Button>
             </Link>
+            <Link to="/dashboard">
+              <Button variant="ghost" size="sm">Dashboard</Button>
+            </Link>
             <Button variant="outline" size="sm" onClick={handleLogout}>
               <LogOut className="mr-1 h-4 w-4" /> Logout
             </Button>
@@ -93,58 +176,190 @@ const Admin = () => {
       </header>
 
       <main className="mx-auto max-w-7xl px-6 py-8">
-        <div className="mb-8 flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
-            <Users className="h-6 w-6 text-primary" />
-          </div>
-          <div>
-            <h1 className="font-display text-2xl font-bold text-foreground">Members</h1>
-            <p className="text-muted-foreground">{members.length} total members joined</p>
-          </div>
+        {/* Tabs */}
+        <div className="flex gap-2 mb-8">
+          <Button
+            variant={activeTab === "devices" ? "default" : "outline"}
+            onClick={() => setActiveTab("devices")}
+          >
+            <Radio className="mr-2 h-4 w-4" /> Devices
+          </Button>
+          <Button
+            variant={activeTab === "members" ? "default" : "outline"}
+            onClick={() => setActiveTab("members")}
+          >
+            <Users className="mr-2 h-4 w-4" /> Members
+          </Button>
         </div>
 
-        {loading ? (
-          <p className="text-muted-foreground">Loading...</p>
-        ) : members.length === 0 ? (
-          <div className="rounded-xl border border-border bg-card p-12 text-center">
-            <Users className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No members have joined yet.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto rounded-xl border border-border">
-            <table className="w-full">
-              <thead className="bg-muted/50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">#</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Name</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Email</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Phone</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Interest</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Message</th>
-                  <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Joined</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {members.map((member, i) => (
-                  <tr key={member.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-3 text-sm text-foreground">{i + 1}</td>
-                    <td className="px-4 py-3 text-sm font-medium text-foreground">{member.full_name}</td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">{member.email}</td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">{member.phone || "—"}</td>
-                    <td className="px-4 py-3">
-                      <span className="inline-flex rounded-full bg-primary/20 px-2.5 py-0.5 text-xs font-medium text-primary">
-                        {interestLabels[member.interest] || member.interest}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground max-w-[200px] truncate">{member.message || "—"}</td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">
-                      {new Date(member.created_at).toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        {/* Devices Tab */}
+        {activeTab === "devices" && (
+          <>
+            {/* Create Device Form */}
+            <Card className="bg-card border-border mb-8">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-foreground">
+                  <Plus className="h-5 w-5 text-primary" /> Create New Device
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleCreateDevice} className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="space-y-1">
+                    <Label htmlFor="deviceId" className="text-muted-foreground">Device ID</Label>
+                    <Input
+                      id="deviceId"
+                      placeholder="SAL001"
+                      value={newDeviceId}
+                      onChange={(e) => setNewDeviceId(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="deviceName" className="text-muted-foreground">Device Name</Label>
+                    <Input
+                      id="deviceName"
+                      placeholder="My SAL Device"
+                      value={newDeviceName}
+                      onChange={(e) => setNewDeviceName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="ownerEmail" className="text-muted-foreground">Owner Email (optional)</Label>
+                    <Input
+                      id="ownerEmail"
+                      type="email"
+                      placeholder="user@example.com"
+                      value={newDeviceOwnerEmail}
+                      onChange={(e) => setNewDeviceOwnerEmail(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <Button type="submit" className="w-full" disabled={creating}>
+                      {creating ? "Creating..." : "Create Device"}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+
+            {/* Devices Table */}
+            <div className="mb-4 flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
+                <Radio className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h2 className="font-display text-2xl font-bold text-foreground">Devices</h2>
+                <p className="text-muted-foreground">{devices.length} registered devices</p>
+              </div>
+            </div>
+
+            {devices.length === 0 ? (
+              <div className="rounded-xl border border-border bg-card p-12 text-center">
+                <Radio className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">No devices created yet.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-xl border border-border">
+                <table className="w-full">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">#</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Device ID</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Name</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Owner</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Created</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {devices.map((device, i) => (
+                      <tr key={device.id} className="hover:bg-muted/30 transition-colors">
+                        <td className="px-4 py-3 text-sm text-foreground">{i + 1}</td>
+                        <td className="px-4 py-3 text-sm font-medium text-primary">{device.device_id}</td>
+                        <td className="px-4 py-3 text-sm text-foreground">{device.name}</td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">
+                          {device.owner_user_id ? device.owner_user_id.slice(0, 8) + "..." : "Unassigned"}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">
+                          {new Date(device.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteDevice(device.id)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Members Tab */}
+        {activeTab === "members" && (
+          <>
+            <div className="mb-4 flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
+                <Users className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h2 className="font-display text-2xl font-bold text-foreground">Members</h2>
+                <p className="text-muted-foreground">{members.length} total members joined</p>
+              </div>
+            </div>
+
+            {loading ? (
+              <p className="text-muted-foreground">Loading...</p>
+            ) : members.length === 0 ? (
+              <div className="rounded-xl border border-border bg-card p-12 text-center">
+                <Users className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">No members have joined yet.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-xl border border-border">
+                <table className="w-full">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">#</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Name</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Email</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Phone</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Interest</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Message</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Joined</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {members.map((member, i) => (
+                      <tr key={member.id} className="hover:bg-muted/30 transition-colors">
+                        <td className="px-4 py-3 text-sm text-foreground">{i + 1}</td>
+                        <td className="px-4 py-3 text-sm font-medium text-foreground">{member.full_name}</td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">{member.email}</td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">{member.phone || "—"}</td>
+                        <td className="px-4 py-3">
+                          <span className="inline-flex rounded-full bg-primary/20 px-2.5 py-0.5 text-xs font-medium text-primary">
+                            {interestLabels[member.interest] || member.interest}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground max-w-[200px] truncate">{member.message || "—"}</td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">
+                          {new Date(member.created_at).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>
