@@ -1,0 +1,3 @@
+ALTER TABLE public.device_data ADD COLUMN IF NOT EXISTS spo2 numeric NOT NULL DEFAULT 0;
+ALTER TABLE public.device_data ADD COLUMN IF NOT EXISTS bpm numeric NOT NULL DEFAULT 0;
+ALTER TABLE public.device_data ADD COLUMN IF NOT EXISTS fuel numeric NOT NULL DEFAULT 0;

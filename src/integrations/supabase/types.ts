@@ -17,33 +17,42 @@ export type Database = {
       device_data: {
         Row: {
           accident: number
+          bpm: number
           created_at: string
           device_id: string
+          fuel: number
           gsm_signal: number
           id: string
           latitude: number
           longitude: number
           speed: number
+          spo2: number
         }
         Insert: {
           accident?: number
+          bpm?: number
           created_at?: string
           device_id: string
+          fuel?: number
           gsm_signal?: number
           id?: string
           latitude?: number
           longitude?: number
           speed?: number
+          spo2?: number
         }
         Update: {
           accident?: number
+          bpm?: number
           created_at?: string
           device_id?: string
+          fuel?: number
           gsm_signal?: number
           id?: string
           latitude?: number
           longitude?: number
           speed?: number
+          spo2?: number
         }
         Relationships: []
       }
