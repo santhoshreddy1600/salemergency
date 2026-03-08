@@ -90,6 +90,57 @@ const Admin = () => {
     else setDevices(data || []);
   };
 
+  const fetchProfiles = async () => {
+    const { data, error } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
+    if (!error) setProfiles(data || []);
+  };
+
+  const handleCreateOwner = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ownerUsername.trim() || !ownerPassword.trim()) {
+      toast.error("Username and password are required");
+      return;
+    }
+    if (ownerPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    setCreatingOwner(true);
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-product-owner`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({
+          username: ownerUsername.trim(),
+          password: ownerPassword,
+          full_name: ownerFullName.trim() || ownerUsername.trim(),
+        }),
+      }
+    );
+
+    const result = await response.json();
+    if (!response.ok) {
+      toast.error(result.error || "Failed to create product owner");
+    } else {
+      toast.success(`Product owner "${ownerUsername}" created successfully!`);
+      setOwnerUsername("");
+      setOwnerPassword("");
+      setOwnerFullName("");
+      setShowOwnerForm(false);
+      fetchProfiles();
+    }
+    setCreatingOwner(false);
+  };
+
   const handleCreateDevice = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newDeviceId.trim() || !newDeviceName.trim()) {
