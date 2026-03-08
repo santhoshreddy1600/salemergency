@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, Users, Shield, ArrowLeft, Plus, Radio, Trash2, UserPlus } from "lucide-react";
+import { LogOut, Users, Shield, ArrowLeft, Plus, Radio, Trash2, UserPlus, Copy } from "lucide-react";
 import { toast } from "sonner";
 
 interface Member {
@@ -348,32 +348,106 @@ const Admin = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {devices.map((device, i) => (
-                      <tr key={device.id} className="hover:bg-muted/30 transition-colors">
-                        <td className="px-4 py-3 text-sm text-foreground">{i + 1}</td>
-                        <td className="px-4 py-3 text-sm font-medium text-primary">{device.device_id}</td>
-                        <td className="px-4 py-3 text-sm text-foreground">{device.name}</td>
-                        <td className="px-4 py-3 text-sm text-muted-foreground">
-                          {device.owner_user_id ? device.owner_user_id.slice(0, 8) + "..." : "Unassigned"}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-muted-foreground">
-                          {new Date(device.created_at).toLocaleDateString()}
-                        </td>
-                        <td className="px-4 py-3">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteDevice(device.id)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
+                    {devices.map((device, i) => {
+                      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/device-data`;
+                      const samplePayload = `{"device_id":"${device.device_id}","speed":0,"accident":0,"latitude":0,"longitude":0,"gsm_signal":0,"spo2":0,"bpm":0,"fuel":0}`;
+                      return (
+                        <tr key={device.id} className="hover:bg-muted/30 transition-colors align-top">
+                          <td className="px-4 py-3 text-sm text-foreground">{i + 1}</td>
+                          <td className="px-4 py-3 text-sm font-medium text-primary">{device.device_id}</td>
+                          <td className="px-4 py-3 text-sm text-foreground">{device.name}</td>
+                          <td className="px-4 py-3 text-sm text-muted-foreground">
+                            {device.owner_user_id ? device.owner_user_id.slice(0, 8) + "..." : "Unassigned"}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-muted-foreground">
+                            {new Date(device.created_at).toLocaleDateString()}
+                          </td>
+                          <td className="px-4 py-3">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteDevice(device.id)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
+            )}
+
+            {/* Device API Bar */}
+            {devices.length > 0 && (
+              <Card className="bg-card border-border mt-8">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-foreground text-sm">
+                    <Radio className="h-4 w-4 text-primary" /> Device API Endpoint
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-xs">API URL (POST)</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        readOnly
+                        value={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/device-data`}
+                        className="font-mono text-xs bg-muted/50"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          navigator.clipboard.writeText(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/device-data`);
+                          toast.success("API URL copied!");
+                        }}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-xs">Sample JSON Payload</Label>
+                    <div className="relative">
+                      <pre className="rounded-lg bg-muted/50 border border-border p-4 text-xs text-foreground font-mono overflow-x-auto whitespace-pre-wrap">
+{`{
+  "device_id": "${devices[0]?.device_id || "SAL001"}",
+  "speed": 62,
+  "accident": 0,
+  "latitude": 17.3850,
+  "longitude": 78.4867,
+  "gsm_signal": 4,
+  "spo2": 98,
+  "bpm": 76,
+  "fuel": 65
+}`}
+                      </pre>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="absolute top-2 right-2"
+                        onClick={() => {
+                          const payload = JSON.stringify({
+                            device_id: devices[0]?.device_id || "SAL001",
+                            speed: 62, accident: 0, latitude: 17.385, longitude: 78.4867,
+                            gsm_signal: 4, spo2: 98, bpm: 76, fuel: 65,
+                          }, null, 2);
+                          navigator.clipboard.writeText(payload);
+                          toast.success("Payload copied!");
+                        }}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Send a <strong>POST</strong> request with the JSON payload. Replace <code className="text-primary">device_id</code> with the actual device ID from the table above.
+                  </p>
+                </CardContent>
+              </Card>
             )}
           </>
         )}
