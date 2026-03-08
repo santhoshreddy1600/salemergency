@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, Users, Shield, ArrowLeft, Plus, Radio, Trash2, UserPlus } from "lucide-react";
+import { LogOut, Users, Shield, ArrowLeft, Plus, Radio, Trash2, UserPlus, Copy } from "lucide-react";
 import { toast } from "sonner";
 
 interface Member {
