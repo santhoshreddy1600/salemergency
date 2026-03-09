@@ -47,6 +47,7 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState<"members" | "devices" | "owners">("devices");
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [expandedApiDevice, setExpandedApiDevice] = useState<string | null>(null);
+  const [onlineDevices, setOnlineDevices] = useState<Set<string>>(new Set());
   const [showOwnerForm, setShowOwnerForm] = useState(false);
 
   // Device creation form
