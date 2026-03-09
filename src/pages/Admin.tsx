@@ -413,7 +413,17 @@ const Admin = () => {
                         <React.Fragment key={device.id}>
                           <tr className="hover:bg-muted/30 transition-colors align-top">
                             <td className="px-4 py-3 text-sm text-foreground">{i + 1}</td>
-                            <td className="px-4 py-3 text-sm font-medium text-primary">{device.device_id}</td>
+                            <td className="px-4 py-3 text-sm font-medium text-primary flex items-center gap-2">
+                              <span
+                                className={`inline-block h-2.5 w-2.5 rounded-full ${
+                                  onlineDevices.has(device.device_id)
+                                    ? "bg-green-500 shadow-[0_0_6px_2px_rgba(34,197,94,0.5)]"
+                                    : "bg-muted-foreground/30"
+                                }`}
+                                title={onlineDevices.has(device.device_id) ? "Online" : "Offline"}
+                              />
+                              {device.device_id}
+                            </td>
                             <td className="px-4 py-3 text-sm text-foreground">{device.name}</td>
                             <td className="px-4 py-3 text-sm text-muted-foreground">
                               {device.owner_user_id ? device.owner_user_id.slice(0, 8) + "..." : "Unassigned"}
