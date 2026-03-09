@@ -34,6 +34,9 @@ interface Profile {
   created_at: string;
 }
 
+// A device is "online" if it sent data within the last 2 minutes
+const ONLINE_THRESHOLD_MS = 2 * 60 * 1000;
+
 const Admin = () => {
   const navigate = useNavigate();
   const [members, setMembers] = useState<Member[]>([]);
@@ -44,6 +47,7 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState<"members" | "devices" | "owners">("devices");
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [expandedApiDevice, setExpandedApiDevice] = useState<string | null>(null);
+  const [onlineDevices, setOnlineDevices] = useState<Set<string>>(new Set());
   const [showOwnerForm, setShowOwnerForm] = useState(false);
 
   // Device creation form
@@ -61,6 +65,38 @@ const Admin = () => {
   useEffect(() => {
     checkAdmin();
   }, []);
+
+  // Fetch online status for all devices
+  const fetchOnlineStatus = async () => {
+    const threshold = new Date(Date.now() - ONLINE_THRESHOLD_MS).toISOString();
+    const { data } = await supabase
+      .from("device_data")
+      .select("device_id, created_at")
+      .gte("created_at", threshold);
+    if (data) {
+      setOnlineDevices(new Set(data.map((d) => d.device_id)));
+    }
+  };
+
+  // Poll online status every 30s + realtime updates
+  useEffect(() => {
+    if (!isAdmin) return;
+    fetchOnlineStatus();
+    const interval = setInterval(fetchOnlineStatus, 30000);
+
+    const channel = supabase
+      .channel("device-data-online")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "device_data" }, (payload) => {
+        const deviceId = (payload.new as any).device_id;
+        setOnlineDevices((prev) => new Set(prev).add(deviceId));
+      })
+      .subscribe();
+
+    return () => {
+      clearInterval(interval);
+      supabase.removeChannel(channel);
+    };
+  }, [isAdmin]);
 
   const checkAdmin = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -377,7 +413,17 @@ const Admin = () => {
                         <React.Fragment key={device.id}>
                           <tr className="hover:bg-muted/30 transition-colors align-top">
                             <td className="px-4 py-3 text-sm text-foreground">{i + 1}</td>
-                            <td className="px-4 py-3 text-sm font-medium text-primary">{device.device_id}</td>
+                            <td className="px-4 py-3 text-sm font-medium text-primary flex items-center gap-2">
+                              <span
+                                className={`inline-block h-2.5 w-2.5 rounded-full ${
+                                  onlineDevices.has(device.device_id)
+                                    ? "bg-green-500 shadow-[0_0_6px_2px_rgba(34,197,94,0.5)]"
+                                    : "bg-muted-foreground/30"
+                                }`}
+                                title={onlineDevices.has(device.device_id) ? "Online" : "Offline"}
+                              />
+                              {device.device_id}
+                            </td>
                             <td className="px-4 py-3 text-sm text-foreground">{device.name}</td>
                             <td className="px-4 py-3 text-sm text-muted-foreground">
                               {device.owner_user_id ? device.owner_user_id.slice(0, 8) + "..." : "Unassigned"}
