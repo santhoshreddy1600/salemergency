@@ -34,6 +34,9 @@ interface Profile {
   created_at: string;
 }
 
+// A device is "online" if it sent data within the last 2 minutes
+const ONLINE_THRESHOLD_MS = 2 * 60 * 1000;
+
 const Admin = () => {
   const navigate = useNavigate();
   const [members, setMembers] = useState<Member[]>([]);
