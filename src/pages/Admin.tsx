@@ -66,6 +66,38 @@ const Admin = () => {
     checkAdmin();
   }, []);
 
+  // Fetch online status for all devices
+  const fetchOnlineStatus = async () => {
+    const threshold = new Date(Date.now() - ONLINE_THRESHOLD_MS).toISOString();
+    const { data } = await supabase
+      .from("device_data")
+      .select("device_id, created_at")
+      .gte("created_at", threshold);
+    if (data) {
+      setOnlineDevices(new Set(data.map((d) => d.device_id)));
+    }
+  };
+
+  // Poll online status every 30s + realtime updates
+  useEffect(() => {
+    if (!isAdmin) return;
+    fetchOnlineStatus();
+    const interval = setInterval(fetchOnlineStatus, 30000);
+
+    const channel = supabase
+      .channel("device-data-online")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "device_data" }, (payload) => {
+        const deviceId = (payload.new as any).device_id;
+        setOnlineDevices((prev) => new Set(prev).add(deviceId));
+      })
+      .subscribe();
+
+    return () => {
+      clearInterval(interval);
+      supabase.removeChannel(channel);
+    };
+  }, [isAdmin]);
+
   const checkAdmin = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
