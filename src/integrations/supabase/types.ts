@@ -20,6 +20,7 @@ export type Database = {
           bpm: number
           created_at: string
           device_id: string
+          door_open: number
           fuel: number
           gsm_signal: number
           id: string
@@ -27,12 +28,15 @@ export type Database = {
           longitude: number
           speed: number
           spo2: number
+          touch1: number
+          touch2: number
         }
         Insert: {
           accident?: number
           bpm?: number
           created_at?: string
           device_id: string
+          door_open?: number
           fuel?: number
           gsm_signal?: number
           id?: string
@@ -40,12 +44,15 @@ export type Database = {
           longitude?: number
           speed?: number
           spo2?: number
+          touch1?: number
+          touch2?: number
         }
         Update: {
           accident?: number
           bpm?: number
           created_at?: string
           device_id?: string
+          door_open?: number
           fuel?: number
           gsm_signal?: number
           id?: string
@@ -53,6 +60,8 @@ export type Database = {
           longitude?: number
           speed?: number
           spo2?: number
+          touch1?: number
+          touch2?: number
         }
         Relationships: []
       }
