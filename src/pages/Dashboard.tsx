@@ -210,6 +210,39 @@ const DoorIndicator = ({ isOpen }: { isOpen: boolean }) => (
   </div>
 );
 
+// ──────────── Seatbelt Indicator ────────────
+const SeatbeltIndicator = ({ isWorn }: { isWorn: boolean }) => (
+  <div className={`flex items-center gap-3 rounded-xl p-4 transition-all duration-500 ${
+    isWorn
+      ? "bg-[hsl(142,76%,46%,0.1)] border border-[hsl(142,76%,46%,0.3)]"
+      : "bg-destructive/15 border border-destructive shadow-[0_0_20px_hsl(0,85%,58%,0.15)]"
+  }`}>
+    <div className={`relative h-12 w-12 rounded-xl flex items-center justify-center transition-all duration-500 ${
+      isWorn ? "bg-[hsl(142,76%,46%,0.15)]" : "bg-destructive/20"
+    }`}>
+      <svg viewBox="0 0 24 24" className={`h-6 w-6 ${isWorn ? "text-[hsl(142,76%,46%)]" : "text-destructive animate-pulse"}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2a4 4 0 0 1 0 8 4 4 0 0 1 0-8z" />
+        <path d="M16 22H8l1-9h6l1 9z" />
+        <path d="M7 12l5 4 5-4" />
+      </svg>
+      <span className={`absolute -top-1 -right-1 h-3 w-3 rounded-full ${
+        isWorn ? "bg-[hsl(142,76%,46%)]" : "bg-destructive animate-ping"
+      }`} />
+      <span className={`absolute -top-1 -right-1 h-3 w-3 rounded-full ${
+        isWorn ? "bg-[hsl(142,76%,46%)]" : "bg-destructive"
+      }`} />
+    </div>
+    <div>
+      <p className={`text-sm font-bold ${isWorn ? "text-[hsl(142,76%,46%)]" : "text-destructive"}`}>
+        {isWorn ? "SEATBELT ON" : "SEATBELT OFF"}
+      </p>
+      <p className="text-xs text-muted-foreground">
+        {isWorn ? "✓ Driver buckled in" : "⚠️ Seatbelt not detected"}
+      </p>
+    </div>
+  </div>
+);
+
 // ──────────── Touch Indicator ────────────
 const TouchIndicator = ({ touch1, touch2 }: { touch1: number; touch2: number }) => {
   const bothActive = touch1 === 1 && touch2 === 1;
