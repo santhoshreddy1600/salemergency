@@ -1,0 +1,1 @@
+ALTER TABLE public.device_data ADD COLUMN IF NOT EXISTS seatbelt smallint NOT NULL DEFAULT 0;

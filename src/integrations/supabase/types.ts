@@ -26,6 +26,7 @@ export type Database = {
           id: string
           latitude: number
           longitude: number
+          seatbelt: number
           speed: number
           spo2: number
           touch1: number
@@ -42,6 +43,7 @@ export type Database = {
           id?: string
           latitude?: number
           longitude?: number
+          seatbelt?: number
           speed?: number
           spo2?: number
           touch1?: number
@@ -58,6 +60,7 @@ export type Database = {
           id?: string
           latitude?: number
           longitude?: number
+          seatbelt?: number
           speed?: number
           spo2?: number
           touch1?: number
