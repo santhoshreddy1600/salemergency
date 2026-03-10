@@ -564,6 +564,8 @@ const Dashboard = () => {
 
                 <DoorIndicator isOpen={latestData.door_open === 1} />
 
+                <SeatbeltIndicator isWorn={latestData.seatbelt === 1} />
+
                 <TouchIndicator touch1={latestData.touch1} touch2={latestData.touch2} />
               </div>
             </div>
