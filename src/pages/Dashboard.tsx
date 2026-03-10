@@ -35,6 +35,7 @@ interface DeviceData {
   door_open: number;
   touch1: number;
   touch2: number;
+  seatbelt: number;
   created_at: string;
 }
 
