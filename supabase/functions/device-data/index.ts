@@ -66,6 +66,9 @@ Deno.serve(async (req) => {
       spo2: body.spo2 ?? 0,
       bpm: body.bpm ?? 0,
       fuel: body.fuel ?? 0,
+      door_open: body.door_open ?? 0,
+      touch1: body.touch1 ?? 0,
+      touch2: body.touch2 ?? 0,
     });
 
     if (error) {
