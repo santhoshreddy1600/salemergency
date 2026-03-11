@@ -217,7 +217,7 @@ const SeatbeltIndicator = ({ isWorn }: { isWorn: boolean }) => (
       ? "bg-[hsl(142,76%,46%,0.1)] border border-[hsl(142,76%,46%,0.3)]"
       : "bg-destructive/15 border border-destructive shadow-[0_0_20px_hsl(0,85%,58%,0.15)]"
   }`}>
-    <div className={`relative h-12 w-12 rounded-xl flex items-center justify-center transition-all duration-500 ${
+    <div className={`relative h-10 w-10 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center transition-all duration-500 ${
       isWorn ? "bg-[hsl(142,76%,46%,0.15)]" : "bg-destructive/20"
     }`}>
       <svg viewBox="0 0 24 24" className={`h-6 w-6 ${isWorn ? "text-[hsl(142,76%,46%)]" : "text-destructive animate-pulse"}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
