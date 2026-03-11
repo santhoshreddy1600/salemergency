@@ -90,13 +90,13 @@ const Navbar = () => {
           ) : (
             <>
               <Link to="/login">
-                <Button variant="hero-outline" size="sm">
-                  <User className="mr-1 h-4 w-4" /> Product Owner
+                <Button variant="hero" size="sm">
+                  <LogIn className="mr-1 h-4 w-4" /> Sign In
                 </Button>
               </Link>
-              <Link to="/signup">
-                <Button variant="hero" size="sm">
-                  <LogIn className="mr-1 h-4 w-4" /> User
+              <Link to="/product-owner-login">
+                <Button variant="hero-outline" size="sm">
+                  <User className="mr-1 h-4 w-4" /> Product Owner
                 </Button>
               </Link>
             </>
@@ -151,13 +151,13 @@ const Navbar = () => {
               ) : (
                 <>
                   <Link to="/login" onClick={() => setOpen(false)}>
-                    <Button variant="hero-outline" size="sm" className="w-full">
-                      <User className="mr-1 h-4 w-4" /> Product Owner
+                    <Button variant="hero" size="sm" className="w-full">
+                      <LogIn className="mr-1 h-4 w-4" /> Sign In
                     </Button>
                   </Link>
-                  <Link to="/signup" onClick={() => setOpen(false)}>
-                    <Button variant="hero" size="sm" className="w-full">
-                      <LogIn className="mr-1 h-4 w-4" /> User
+                  <Link to="/product-owner-login" onClick={() => setOpen(false)}>
+                    <Button variant="hero-outline" size="sm" className="w-full">
+                      <User className="mr-1 h-4 w-4" /> Product Owner
                     </Button>
                   </Link>
                 </>
