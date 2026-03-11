@@ -671,7 +671,7 @@ const Dashboard = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-[400px] rounded-lg overflow-hidden border border-border">
+                  <div className="h-[250px] sm:h-[400px] rounded-lg overflow-hidden border border-border">
                     <MapContainer
                       center={[Number(latestData.latitude), Number(latestData.longitude)]}
                       zoom={15} style={{ height: "100%", width: "100%" }}
