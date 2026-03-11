@@ -51,8 +51,8 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-        <a href="/" className="font-display text-xl font-bold tracking-tight">
+      <div className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
+        <a href="/" className="font-display text-lg sm:text-xl font-bold tracking-tight">
           <span className="text-gradient">SAL</span>
         </a>
 
@@ -103,8 +103,8 @@ const Navbar = () => {
           )}
         </div>
 
-        <button className="md:hidden text-foreground" onClick={() => setOpen(!open)}>
-          {open ? <X size={24} /> : <Menu size={24} />}
+        <button className="md:hidden text-foreground p-1" onClick={() => setOpen(!open)}>
+          {open ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
@@ -114,19 +114,20 @@ const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="border-t border-border/50 bg-background md:hidden"
+            className="border-t border-border/50 bg-background md:hidden overflow-hidden"
           >
-            <div className="flex flex-col gap-4 px-6 py-6">
+            <div className="flex flex-col gap-3 px-4 py-5">
               {navLinks.map((link) => (
                 <a
                   key={link.href}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                  className="text-sm text-muted-foreground transition-colors hover:text-foreground py-1"
                 >
                   {link.label}
                 </a>
               ))}
+              <div className="border-t border-border/30 my-1" />
               <Link to="/join" onClick={() => setOpen(false)}>
                 <Button variant="hero" size="sm" className="w-full">
                   Join SAL Team
@@ -144,23 +145,23 @@ const Navbar = () => {
                   <Link to="/dashboard" onClick={() => setOpen(false)}>
                     <Button variant="ghost" size="sm" className="w-full">Dashboard</Button>
                   </Link>
-                  <Button variant="ghost" size="sm" onClick={() => { handleLogout(); setOpen(false); }}>
+                  <Button variant="ghost" size="sm" className="w-full" onClick={() => { handleLogout(); setOpen(false); }}>
                     <LogOut className="mr-1 h-4 w-4" /> Logout
                   </Button>
                 </>
               ) : (
-                <>
+                <div className="grid grid-cols-2 gap-2">
                   <Link to="/login" onClick={() => setOpen(false)}>
                     <Button variant="hero" size="sm" className="w-full">
                       <LogIn className="mr-1 h-4 w-4" /> Sign In
                     </Button>
                   </Link>
                   <Link to="/product-owner-login" onClick={() => setOpen(false)}>
-                    <Button variant="hero-outline" size="sm" className="w-full">
-                      <User className="mr-1 h-4 w-4" /> Product Owner
+                    <Button variant="hero-outline" size="sm" className="w-full text-xs">
+                      <User className="mr-1 h-3 w-3" /> Product Owner
                     </Button>
                   </Link>
-                </>
+                </div>
               )}
             </div>
           </motion.div>

@@ -33,15 +33,15 @@ const HowItWorksSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-16"
         >
           <p className="text-primary font-medium text-sm tracking-widest uppercase mb-3">How It Works</p>
-          <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight mb-4">
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-4">
             Four Steps to Save a Life
           </h2>
         </motion.div>
 
-        <div className="grid md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
           {steps.map((step, i) => (
             <motion.div
               key={step.title}
@@ -57,14 +57,14 @@ const HowItWorksSection = () => {
               )}
 
               <div className="relative z-10">
-                <div className="w-20 h-20 rounded-2xl bg-card-gradient border border-border/50 shadow-card flex items-center justify-center mx-auto mb-5">
-                  <step.icon className="text-primary" size={32} />
+                <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl bg-card-gradient border border-border/50 shadow-card flex items-center justify-center mx-auto mb-3 sm:mb-5">
+                  <step.icon className="text-primary" size={24} />
                 </div>
-                <span className="inline-block text-xs font-bold text-primary bg-primary/10 rounded-full px-3 py-1 mb-3">
+                <span className="inline-block text-[10px] sm:text-xs font-bold text-primary bg-primary/10 rounded-full px-2 sm:px-3 py-1 mb-2 sm:mb-3">
                   Step {i + 1}
                 </span>
-                <h3 className="font-display text-lg font-semibold mb-2">{step.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{step.description}</p>
+                <h3 className="font-display text-sm sm:text-lg font-semibold mb-1 sm:mb-2">{step.title}</h3>
+                <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">{step.description}</p>
               </div>
             </motion.div>
           ))}

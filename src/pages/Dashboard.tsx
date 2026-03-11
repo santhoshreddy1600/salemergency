@@ -87,7 +87,7 @@ const SpeedGauge = ({ speed }: { speed: number }) => {
 
   return (
     <div className="flex flex-col items-center">
-      <svg viewBox="0 0 240 200" className="w-full max-w-[320px] drop-shadow-lg">
+      <svg viewBox="0 0 240 200" className="w-full max-w-[240px] sm:max-w-[320px] drop-shadow-lg">
         <defs>
           <filter id="glowGreen"><feGaussianBlur stdDeviation="4" /><feComposite in="SourceGraphic" /></filter>
           <filter id="glowYellow"><feGaussianBlur stdDeviation="4" /><feComposite in="SourceGraphic" /></filter>
@@ -179,12 +179,12 @@ const FuelBar = ({ fuel }: { fuel: number }) => {
 
 // ──────────── Door Indicator ────────────
 const DoorIndicator = ({ isOpen }: { isOpen: boolean }) => (
-  <div className={`flex items-center gap-3 rounded-xl p-4 transition-all duration-500 ${
+  <div className={`flex items-center gap-2 sm:gap-3 rounded-xl p-3 sm:p-4 transition-all duration-500 ${
     isOpen 
       ? "bg-destructive/15 border border-destructive shadow-[0_0_20px_hsl(0,85%,58%,0.15)]" 
       : "bg-[hsl(142,76%,46%,0.1)] border border-[hsl(142,76%,46%,0.3)]"
   }`}>
-    <div className={`relative h-12 w-12 rounded-xl flex items-center justify-center transition-all duration-500 ${
+    <div className={`relative h-10 w-10 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center transition-all duration-500 ${
       isOpen ? "bg-destructive/20" : "bg-[hsl(142,76%,46%,0.15)]"
     }`}>
       {isOpen ? (
@@ -212,12 +212,12 @@ const DoorIndicator = ({ isOpen }: { isOpen: boolean }) => (
 
 // ──────────── Seatbelt Indicator ────────────
 const SeatbeltIndicator = ({ isWorn }: { isWorn: boolean }) => (
-  <div className={`flex items-center gap-3 rounded-xl p-4 transition-all duration-500 ${
+  <div className={`flex items-center gap-2 sm:gap-3 rounded-xl p-3 sm:p-4 transition-all duration-500 ${
     isWorn
       ? "bg-[hsl(142,76%,46%,0.1)] border border-[hsl(142,76%,46%,0.3)]"
       : "bg-destructive/15 border border-destructive shadow-[0_0_20px_hsl(0,85%,58%,0.15)]"
   }`}>
-    <div className={`relative h-12 w-12 rounded-xl flex items-center justify-center transition-all duration-500 ${
+    <div className={`relative h-10 w-10 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center transition-all duration-500 ${
       isWorn ? "bg-[hsl(142,76%,46%,0.15)]" : "bg-destructive/20"
     }`}>
       <svg viewBox="0 0 24 24" className={`h-6 w-6 ${isWorn ? "text-[hsl(142,76%,46%)]" : "text-destructive animate-pulse"}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -262,7 +262,7 @@ const TouchIndicator = ({ touch1, touch2 }: { touch1: number; touch2: number }) 
   };
 
   return (
-    <div className={`rounded-xl p-4 transition-all duration-500 ${getBgClass()}`}>
+    <div className={`rounded-xl p-3 sm:p-4 transition-all duration-500 ${getBgClass()}`}>
       <div className="flex items-center gap-3 mb-3">
         <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${
           bothActive ? "bg-[hsl(142,76%,46%,0.2)]" : oneActive ? "bg-[hsl(45,100%,55%,0.2)]" : "bg-muted"
@@ -456,38 +456,42 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/80 backdrop-blur-xl sticky top-0 z-40">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center">
-              <Activity className="h-5 w-5 text-primary" />
+        <div className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-3 sm:px-6">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg bg-primary/20 flex items-center justify-center">
+              <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
             </div>
-            <span className="text-lg font-bold text-foreground">
-              SAL <span className="text-muted-foreground font-normal text-sm">Vehicle Monitor</span>
+            <span className="text-sm sm:text-lg font-bold text-foreground">
+              SAL <span className="text-muted-foreground font-normal text-xs sm:text-sm hidden sm:inline">Vehicle Monitor</span>
             </span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3">
             {isOnline && (
-              <span className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-full">
+              <span className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs text-muted-foreground bg-muted px-2 sm:px-3 py-1 sm:py-1.5 rounded-full">
                 <span className="h-1.5 w-1.5 rounded-full bg-[hsl(142,76%,46%)] animate-pulse" />
                 Live
               </span>
             )}
             <Link to="/">
-              <Button variant="ghost" size="sm"><ArrowLeft className="mr-1 h-4 w-4" /> Home</Button>
+              <Button variant="ghost" size="sm" className="h-8 px-2 sm:px-3 text-xs sm:text-sm">
+                <ArrowLeft className="mr-0.5 sm:mr-1 h-3.5 w-3.5 sm:h-4 sm:w-4" /> 
+                <span className="hidden sm:inline">Home</span>
+              </Button>
             </Link>
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              <LogOut className="mr-1 h-4 w-4" /> Logout
+            <Button variant="outline" size="sm" className="h-8 px-2 sm:px-3 text-xs sm:text-sm" onClick={handleLogout}>
+              <LogOut className="mr-0.5 sm:mr-1 h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Logout</span>
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 py-6">
+      <main className="mx-auto max-w-7xl px-3 sm:px-6 py-4 sm:py-6">
         {/* Accident Alert */}
         {isAccident && (
-          <div className="mb-6 flex items-center gap-3 rounded-xl border border-destructive bg-destructive/10 p-4 animate-pulse">
-            <AlertTriangle className="h-6 w-6 text-destructive flex-shrink-0" />
-            <span className="text-lg font-bold text-destructive">
+          <div className="mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3 rounded-xl border border-destructive bg-destructive/10 p-3 sm:p-4 animate-pulse">
+            <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-destructive flex-shrink-0" />
+            <span className="text-sm sm:text-lg font-bold text-destructive">
               🚨 Accident Detected – Emergency Alert Sent
             </span>
           </div>
@@ -529,7 +533,7 @@ const Dashboard = () => {
         ) : (
           <>
             {/* Row 1: Speed + Health + Fuel */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
               {/* Speed Gauge */}
               <Card className="bg-card border-border shadow-card">
                 <CardHeader className="pb-2">
@@ -585,7 +589,7 @@ const Dashboard = () => {
               </Card>
 
               {/* Fuel + Door + Touch */}
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <Card className="bg-card border-border shadow-card">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
@@ -604,7 +608,7 @@ const Dashboard = () => {
             </div>
 
             {/* Row 2: Device Status */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
               <Card className="bg-card border-border shadow-card">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
@@ -647,7 +651,7 @@ const Dashboard = () => {
             </div>
 
             {/* Row 3: History Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
               <HistoryChart data={sampleData("speed")} dataKey="value" color="hsl(205, 100%, 55%)" label="Speed" unit="km/h" />
               <HistoryChart data={sampleData("bpm")} dataKey="value" color="hsl(0, 84%, 60%)" label="Heart Rate" unit="BPM" />
               <HistoryChart data={sampleData("spo2")} dataKey="value" color="hsl(152, 82%, 50%)" label="SpO2" unit="%" />
@@ -655,7 +659,7 @@ const Dashboard = () => {
 
             {/* Row 4: Map */}
             {latestData.latitude !== 0 && latestData.longitude !== 0 && (
-              <Card className="bg-card border-border shadow-card mb-6">
+              <Card className="bg-card border-border shadow-card mb-4 sm:mb-6">
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
@@ -667,7 +671,7 @@ const Dashboard = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-[400px] rounded-lg overflow-hidden border border-border">
+                  <div className="h-[250px] sm:h-[400px] rounded-lg overflow-hidden border border-border">
                     <MapContainer
                       center={[Number(latestData.latitude), Number(latestData.longitude)]}
                       zoom={15} style={{ height: "100%", width: "100%" }}
