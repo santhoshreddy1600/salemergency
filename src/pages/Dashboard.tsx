@@ -486,7 +486,7 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 py-6">
+      <main className="mx-auto max-w-7xl px-3 sm:px-6 py-4 sm:py-6">
         {/* Accident Alert */}
         {isAccident && (
           <div className="mb-6 flex items-center gap-3 rounded-xl border border-destructive bg-destructive/10 p-4 animate-pulse">
