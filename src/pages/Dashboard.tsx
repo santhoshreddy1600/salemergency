@@ -456,27 +456,31 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/80 backdrop-blur-xl sticky top-0 z-40">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center">
-              <Activity className="h-5 w-5 text-primary" />
+        <div className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-3 sm:px-6">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg bg-primary/20 flex items-center justify-center">
+              <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
             </div>
-            <span className="text-lg font-bold text-foreground">
-              SAL <span className="text-muted-foreground font-normal text-sm">Vehicle Monitor</span>
+            <span className="text-sm sm:text-lg font-bold text-foreground">
+              SAL <span className="text-muted-foreground font-normal text-xs sm:text-sm hidden sm:inline">Vehicle Monitor</span>
             </span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3">
             {isOnline && (
-              <span className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-full">
+              <span className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs text-muted-foreground bg-muted px-2 sm:px-3 py-1 sm:py-1.5 rounded-full">
                 <span className="h-1.5 w-1.5 rounded-full bg-[hsl(142,76%,46%)] animate-pulse" />
                 Live
               </span>
             )}
             <Link to="/">
-              <Button variant="ghost" size="sm"><ArrowLeft className="mr-1 h-4 w-4" /> Home</Button>
+              <Button variant="ghost" size="sm" className="h-8 px-2 sm:px-3 text-xs sm:text-sm">
+                <ArrowLeft className="mr-0.5 sm:mr-1 h-3.5 w-3.5 sm:h-4 sm:w-4" /> 
+                <span className="hidden sm:inline">Home</span>
+              </Button>
             </Link>
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              <LogOut className="mr-1 h-4 w-4" /> Logout
+            <Button variant="outline" size="sm" className="h-8 px-2 sm:px-3 text-xs sm:text-sm" onClick={handleLogout}>
+              <LogOut className="mr-0.5 sm:mr-1 h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Logout</span>
             </Button>
           </div>
         </div>
