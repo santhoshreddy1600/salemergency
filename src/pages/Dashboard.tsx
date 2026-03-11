@@ -262,7 +262,7 @@ const TouchIndicator = ({ touch1, touch2 }: { touch1: number; touch2: number }) 
   };
 
   return (
-    <div className={`rounded-xl p-4 transition-all duration-500 ${getBgClass()}`}>
+    <div className={`rounded-xl p-3 sm:p-4 transition-all duration-500 ${getBgClass()}`}>
       <div className="flex items-center gap-3 mb-3">
         <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${
           bothActive ? "bg-[hsl(142,76%,46%,0.2)]" : oneActive ? "bg-[hsl(45,100%,55%,0.2)]" : "bg-muted"
