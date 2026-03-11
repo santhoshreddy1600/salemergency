@@ -533,7 +533,7 @@ const Dashboard = () => {
         ) : (
           <>
             {/* Row 1: Speed + Health + Fuel */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
               {/* Speed Gauge */}
               <Card className="bg-card border-border shadow-card">
                 <CardHeader className="pb-2">
