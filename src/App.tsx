@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import ProductOwnerLogin from "./pages/ProductOwnerLogin";
 import Signup from "./pages/Signup";
 import JoinTeam from "./pages/JoinTeam";
 import Admin from "./pages/Admin";
@@ -22,6 +23,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/product-owner-login" element={<ProductOwnerLogin />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/join" element={<JoinTeam />} />
           <Route path="/admin" element={<Admin />} />
