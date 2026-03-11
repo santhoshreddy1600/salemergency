@@ -589,7 +589,7 @@ const Dashboard = () => {
               </Card>
 
               {/* Fuel + Door + Touch */}
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <Card className="bg-card border-border shadow-card">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
