@@ -87,7 +87,7 @@ const SpeedGauge = ({ speed }: { speed: number }) => {
 
   return (
     <div className="flex flex-col items-center">
-      <svg viewBox="0 0 240 200" className="w-full max-w-[320px] drop-shadow-lg">
+      <svg viewBox="0 0 240 200" className="w-full max-w-[240px] sm:max-w-[320px] drop-shadow-lg">
         <defs>
           <filter id="glowGreen"><feGaussianBlur stdDeviation="4" /><feComposite in="SourceGraphic" /></filter>
           <filter id="glowYellow"><feGaussianBlur stdDeviation="4" /><feComposite in="SourceGraphic" /></filter>
