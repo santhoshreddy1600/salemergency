@@ -22,13 +22,13 @@ const ContactSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          className="text-center mb-8 sm:mb-12"
         >
           <p className="text-primary font-medium text-sm tracking-widest uppercase mb-3">Get In Touch</p>
-          <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight mb-4">
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-4">
             Join the <span className="text-gradient">SAL</span> Movement
           </h2>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-base sm:text-lg">
             Whether you're an investor, partner, or early adopter — we'd love to hear from you.
           </p>
         </motion.div>
@@ -39,9 +39,9 @@ const ContactSection = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
           onSubmit={handleSubmit}
-          className="bg-card-gradient border border-border/50 rounded-2xl p-8 shadow-card space-y-5"
+          className="bg-card-gradient border border-border/50 rounded-2xl p-5 sm:p-8 shadow-card space-y-4 sm:space-y-5"
         >
-          <div className="grid sm:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             <div>
               <label className="text-sm font-medium text-foreground mb-1.5 block">Name</label>
               <Input
@@ -67,7 +67,7 @@ const ContactSection = () => {
 
           <div>
             <label className="text-sm font-medium text-foreground mb-1.5 block">I'm interested as a...</label>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2 sm:gap-3">
               {[
                 { value: "beta", label: "Beta Tester" },
                 { value: "partner", label: "Partner" },
@@ -77,7 +77,7 @@ const ContactSection = () => {
                   key={opt.value}
                   type="button"
                   onClick={() => setForm({ ...form, type: opt.value })}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                  className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium border transition-colors ${
                     form.type === opt.value
                       ? "bg-primary/10 border-primary/40 text-primary"
                       : "bg-muted/30 border-border/50 text-muted-foreground hover:border-primary/20"
