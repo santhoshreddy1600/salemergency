@@ -651,7 +651,7 @@ const Dashboard = () => {
             </div>
 
             {/* Row 3: History Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
               <HistoryChart data={sampleData("speed")} dataKey="value" color="hsl(205, 100%, 55%)" label="Speed" unit="km/h" />
               <HistoryChart data={sampleData("bpm")} dataKey="value" color="hsl(0, 84%, 60%)" label="Heart Rate" unit="BPM" />
               <HistoryChart data={sampleData("spo2")} dataKey="value" color="hsl(152, 82%, 50%)" label="SpO2" unit="%" />
