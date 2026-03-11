@@ -659,7 +659,7 @@ const Dashboard = () => {
 
             {/* Row 4: Map */}
             {latestData.latitude !== 0 && latestData.longitude !== 0 && (
-              <Card className="bg-card border-border shadow-card mb-6">
+              <Card className="bg-card border-border shadow-card mb-4 sm:mb-6">
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
