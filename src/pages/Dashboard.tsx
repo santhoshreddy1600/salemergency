@@ -179,7 +179,7 @@ const FuelBar = ({ fuel }: { fuel: number }) => {
 
 // ──────────── Door Indicator ────────────
 const DoorIndicator = ({ isOpen }: { isOpen: boolean }) => (
-  <div className={`flex items-center gap-3 rounded-xl p-4 transition-all duration-500 ${
+  <div className={`flex items-center gap-2 sm:gap-3 rounded-xl p-3 sm:p-4 transition-all duration-500 ${
     isOpen 
       ? "bg-destructive/15 border border-destructive shadow-[0_0_20px_hsl(0,85%,58%,0.15)]" 
       : "bg-[hsl(142,76%,46%,0.1)] border border-[hsl(142,76%,46%,0.3)]"
