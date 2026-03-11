@@ -489,9 +489,9 @@ const Dashboard = () => {
       <main className="mx-auto max-w-7xl px-3 sm:px-6 py-4 sm:py-6">
         {/* Accident Alert */}
         {isAccident && (
-          <div className="mb-6 flex items-center gap-3 rounded-xl border border-destructive bg-destructive/10 p-4 animate-pulse">
-            <AlertTriangle className="h-6 w-6 text-destructive flex-shrink-0" />
-            <span className="text-lg font-bold text-destructive">
+          <div className="mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3 rounded-xl border border-destructive bg-destructive/10 p-3 sm:p-4 animate-pulse">
+            <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-destructive flex-shrink-0" />
+            <span className="text-sm sm:text-lg font-bold text-destructive">
               🚨 Accident Detected – Emergency Alert Sent
             </span>
           </div>
