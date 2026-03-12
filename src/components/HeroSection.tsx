@@ -58,6 +58,17 @@ const HeroSection = () => {
           </div>
         </motion.div>
       </div>
+
+      <Dialog open={showArchitecture} onOpenChange={setShowArchitecture}>
+        <DialogContent className="max-w-3xl w-[95vw] p-4 sm:p-6">
+          <DialogTitle className="text-lg font-bold text-foreground mb-2">How SAL Works</DialogTitle>
+          <img
+            src={salArchitecture}
+            alt="SAL System Architecture - How It Works"
+            className="w-full rounded-lg"
+          />
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
