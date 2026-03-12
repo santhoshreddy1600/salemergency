@@ -1,8 +1,13 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { motion } from "framer-motion";
 import salDevice from "@/assets/sal-device.png";
+import salArchitecture from "@/assets/sal-architecture.png";
 
 const HeroSection = () => {
+  const [showArchitecture, setShowArchitecture] = useState(false);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center section-padding pt-24 sm:pt-32 overflow-hidden">
       {/* Background glow */}
@@ -28,7 +33,7 @@ const HeroSection = () => {
             Every second counts — SAL ensures help is on the way.
           </p>
           <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center lg:justify-start">
-            <Button variant="hero" size="lg" className="w-full sm:w-auto">
+            <Button variant="hero" size="lg" className="w-full sm:w-auto" onClick={() => setShowArchitecture(true)}>
               See How It Works
             </Button>
             <Button variant="hero-outline" size="lg" className="w-full sm:w-auto">
@@ -53,6 +58,17 @@ const HeroSection = () => {
           </div>
         </motion.div>
       </div>
+
+      <Dialog open={showArchitecture} onOpenChange={setShowArchitecture}>
+        <DialogContent className="max-w-3xl w-[95vw] p-4 sm:p-6">
+          <DialogTitle className="text-lg font-bold text-foreground mb-2">How SAL Works</DialogTitle>
+          <img
+            src={salArchitecture}
+            alt="SAL System Architecture - How It Works"
+            className="w-full rounded-lg"
+          />
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
