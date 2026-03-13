@@ -489,15 +489,40 @@ const Dashboard = () => {
             </span>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-3">
+            {/* View Toggle */}
+            <div className="flex items-center bg-muted rounded-lg p-0.5">
+              <button
+                onClick={() => setDashView("monitor")}
+                className={`flex items-center gap-1 px-2 py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-all ${
+                  dashView === "monitor"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <BarChart3 className="h-3 w-3" />
+                <span className="hidden sm:inline">Monitor</span>
+              </button>
+              <button
+                onClick={() => setDashView("control")}
+                className={`flex items-center gap-1 px-2 py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-all ${
+                  dashView === "control"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Gamepad2 className="h-3 w-3" />
+                <span className="hidden sm:inline">Control</span>
+              </button>
+            </div>
             {isOnline && (
-              <span className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs text-muted-foreground bg-muted px-2 sm:px-3 py-1 sm:py-1.5 rounded-full">
+              <span className="flex items-center gap-1 text-[10px] sm:text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
                 <span className="h-1.5 w-1.5 rounded-full bg-[hsl(142,76%,46%)] animate-pulse" />
                 Live
               </span>
             )}
             <Link to="/">
               <Button variant="ghost" size="sm" className="h-8 px-2 sm:px-3 text-xs sm:text-sm">
-                <ArrowLeft className="mr-0.5 sm:mr-1 h-3.5 w-3.5 sm:h-4 sm:w-4" /> 
+                <ArrowLeft className="mr-0.5 sm:mr-1 h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Home</span>
               </Button>
             </Link>
@@ -505,32 +530,6 @@ const Dashboard = () => {
               <LogOut className="mr-0.5 sm:mr-1 h-3.5 w-3.5 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">Logout</span>
             </Button>
-          </div>
-        {/* View Toggle */}
-        <div className="flex items-center bg-muted rounded-lg p-0.5 ml-auto mr-2">
-          <button
-            onClick={() => setDashView("monitor")}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-all ${
-              dashView === "monitor"
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <BarChart3 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-            <span className="hidden sm:inline">Monitor</span>
-          </button>
-          <button
-            onClick={() => setDashView("control")}
-            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-all ${
-              dashView === "control"
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Gamepad2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-            <span className="hidden sm:inline">Control</span>
-          </button>
-        </div>
           </div>
         </div>
       </header>
