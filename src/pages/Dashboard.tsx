@@ -506,10 +506,40 @@ const Dashboard = () => {
               <span className="hidden sm:inline">Logout</span>
             </Button>
           </div>
+        {/* View Toggle */}
+        <div className="flex items-center bg-muted rounded-lg p-0.5 ml-auto mr-2">
+          <button
+            onClick={() => setDashView("monitor")}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-all ${
+              dashView === "monitor"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <BarChart3 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+            <span className="hidden sm:inline">Monitor</span>
+          </button>
+          <button
+            onClick={() => setDashView("control")}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-all ${
+              dashView === "control"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Gamepad2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+            <span className="hidden sm:inline">Control</span>
+          </button>
+        </div>
+          </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-7xl px-3 sm:px-6 py-4 sm:py-6">
+        {dashView === "control" ? (
+          <VehicleControlPanel />
+        ) : (
+        <>
         {/* Accident Alert */}
         {isAccident && (
           <div className="mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3 rounded-xl border border-destructive bg-destructive/10 p-3 sm:p-4 animate-pulse">
