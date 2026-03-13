@@ -540,7 +540,26 @@ const Dashboard = () => {
           </div>
         )}
 
-        {devices.length === 0 ? (
+        {/* Emergency Button */}
+        {selectedDevice && (
+          <div className="mb-4 sm:mb-6">
+            <button
+              onClick={handleEmergency}
+              disabled={emergencyLoading}
+              className={`w-full rounded-xl p-4 sm:p-5 font-bold text-base sm:text-lg transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 ${
+                emergencyActive
+                  ? "bg-destructive text-destructive-foreground shadow-[0_0_30px_hsl(0,85%,58%,0.5)] animate-pulse"
+                  : "bg-destructive/90 hover:bg-destructive text-destructive-foreground shadow-[0_0_15px_hsl(0,85%,58%,0.3)] hover:shadow-[0_0_25px_hsl(0,85%,58%,0.5)] active:scale-[0.98]"
+              }`}
+            >
+              <TriangleAlert className={`h-5 w-5 sm:h-6 sm:w-6 ${emergencyActive ? "animate-bounce" : ""}`} />
+              {emergencyLoading ? "Sending..." : emergencyActive ? "🚨 EMERGENCY SENT!" : "🚨 EMERGENCY"}
+            </button>
+            <p className="text-[10px] sm:text-xs text-muted-foreground text-center mt-1.5">
+              Activates hazard lights & unlocks doors remotely
+            </p>
+          </div>
+        )}
           <div className="rounded-xl border border-border bg-card p-12 text-center">
             <Radio className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-muted-foreground">No devices assigned to your account yet.</p>
