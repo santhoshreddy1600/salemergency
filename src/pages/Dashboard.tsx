@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   LogOut, ArrowLeft, Wifi, WifiOff, AlertTriangle,
   MapPin, Radio, Activity, Heart, Droplets, Fuel,
-  DoorOpen, DoorClosed, Hand
+  DoorOpen, DoorClosed, Hand, TriangleAlert
 } from "lucide-react";
 import { toast } from "sonner";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
@@ -352,6 +352,8 @@ const Dashboard = () => {
   const [historyData, setHistoryData] = useState<DeviceData[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [emergencyLoading, setEmergencyLoading] = useState(false);
+  const [emergencyActive, setEmergencyActive] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -422,6 +424,25 @@ const Dashboard = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/login");
+  };
+
+  const handleEmergency = async () => {
+    if (!selectedDevice) return;
+    setEmergencyLoading(true);
+    try {
+      const { error } = await supabase.from("device_commands").insert({
+        device_id: selectedDevice,
+        command: "emergency_hazard_unlock",
+      });
+      if (error) throw error;
+      setEmergencyActive(true);
+      toast.success("🚨 Emergency command sent! Hazard lights ON & doors unlocked.");
+      setTimeout(() => setEmergencyActive(false), 5000);
+    } catch (e: any) {
+      toast.error("Failed to send emergency command: " + e.message);
+    } finally {
+      setEmergencyLoading(false);
+    }
   };
 
   const isOnline = latestData ? (Date.now() - new Date(latestData.created_at).getTime()) < 30000 : false;
@@ -516,6 +537,27 @@ const Dashboard = () => {
                 {d.name || d.device_id}
               </Button>
             ))}
+          </div>
+        )}
+
+        {/* Emergency Button */}
+        {selectedDevice && (
+          <div className="mb-4 sm:mb-6">
+            <button
+              onClick={handleEmergency}
+              disabled={emergencyLoading}
+              className={`w-full rounded-xl p-4 sm:p-5 font-bold text-base sm:text-lg transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 ${
+                emergencyActive
+                  ? "bg-destructive text-destructive-foreground shadow-[0_0_30px_hsl(0,85%,58%,0.5)] animate-pulse"
+                  : "bg-destructive/90 hover:bg-destructive text-destructive-foreground shadow-[0_0_15px_hsl(0,85%,58%,0.3)] hover:shadow-[0_0_25px_hsl(0,85%,58%,0.5)] active:scale-[0.98]"
+              }`}
+            >
+              <TriangleAlert className={`h-5 w-5 sm:h-6 sm:w-6 ${emergencyActive ? "animate-bounce" : ""}`} />
+              {emergencyLoading ? "Sending..." : emergencyActive ? "🚨 EMERGENCY SENT!" : "🚨 EMERGENCY"}
+            </button>
+            <p className="text-[10px] sm:text-xs text-muted-foreground text-center mt-1.5">
+              Activates hazard lights & unlocks doors remotely
+            </p>
           </div>
         )}
 
