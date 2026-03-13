@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   LogOut, ArrowLeft, Wifi, WifiOff, AlertTriangle,
   MapPin, Radio, Activity, Heart, Droplets, Fuel,
-  DoorOpen, DoorClosed, Hand, TriangleAlert
+  DoorOpen, DoorClosed, Hand, TriangleAlert, Gamepad2, BarChart3
 } from "lucide-react";
+import VehicleControlPanel from "@/components/dashboard/VehicleControlPanel";
 import { toast } from "sonner";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
