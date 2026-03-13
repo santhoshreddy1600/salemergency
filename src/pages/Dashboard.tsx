@@ -426,6 +426,25 @@ const Dashboard = () => {
     navigate("/login");
   };
 
+  const handleEmergency = async () => {
+    if (!selectedDevice) return;
+    setEmergencyLoading(true);
+    try {
+      const { error } = await supabase.from("device_commands").insert({
+        device_id: selectedDevice,
+        command: "emergency_hazard_unlock",
+      });
+      if (error) throw error;
+      setEmergencyActive(true);
+      toast.success("🚨 Emergency command sent! Hazard lights ON & doors unlocked.");
+      setTimeout(() => setEmergencyActive(false), 5000);
+    } catch (e: any) {
+      toast.error("Failed to send emergency command: " + e.message);
+    } finally {
+      setEmergencyLoading(false);
+    }
+  };
+
   const isOnline = latestData ? (Date.now() - new Date(latestData.created_at).getTime()) < 30000 : false;
   const isAccident = latestData?.accident === 1;
   const isBpmAbnormal = latestData ? (latestData.bpm < 50 || latestData.bpm > 120) : false;
