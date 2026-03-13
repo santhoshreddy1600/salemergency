@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      device_commands: {
+        Row: {
+          command: string
+          created_at: string
+          device_id: string
+          id: string
+          status: string
+        }
+        Insert: {
+          command: string
+          created_at?: string
+          device_id: string
+          id?: string
+          status?: string
+        }
+        Update: {
+          command?: string
+          created_at?: string
+          device_id?: string
+          id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       device_data: {
         Row: {
           accident: number
