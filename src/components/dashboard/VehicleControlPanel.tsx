@@ -302,7 +302,7 @@ const CircularGauge = ({
           fill="hsl(215, 15%, 45%)"
           fontSize={size * 0.065}
           letterSpacing="1"
-          textTransform="uppercase"
+          style={{ textTransform: "uppercase" }}
         >
           {label}
         </text>
