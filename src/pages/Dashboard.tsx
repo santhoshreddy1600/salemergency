@@ -352,6 +352,8 @@ const Dashboard = () => {
   const [historyData, setHistoryData] = useState<DeviceData[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [emergencyLoading, setEmergencyLoading] = useState(false);
+  const [emergencyActive, setEmergencyActive] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
