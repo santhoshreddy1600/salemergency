@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   LogOut, ArrowLeft, Wifi, WifiOff, AlertTriangle,
   MapPin, Radio, Activity, Heart, Droplets, Fuel,
-  DoorOpen, DoorClosed, Hand
+  DoorOpen, DoorClosed, Hand, TriangleAlert
 } from "lucide-react";
 import { toast } from "sonner";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
