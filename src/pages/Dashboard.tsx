@@ -540,6 +540,7 @@ const Dashboard = () => {
           </div>
         )}
 
+        {devices.length === 0 ? (
         {/* Emergency Button */}
         {selectedDevice && (
           <div className="mb-4 sm:mb-6">
