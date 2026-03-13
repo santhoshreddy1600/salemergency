@@ -540,7 +540,6 @@ const Dashboard = () => {
           </div>
         )}
 
-        {devices.length === 0 ? (
         {/* Emergency Button */}
         {selectedDevice && (
           <div className="mb-4 sm:mb-6">
@@ -561,6 +560,8 @@ const Dashboard = () => {
             </p>
           </div>
         )}
+
+        {devices.length === 0 ? (
           <div className="rounded-xl border border-border bg-card p-12 text-center">
             <Radio className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-muted-foreground">No devices assigned to your account yet.</p>
