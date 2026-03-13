@@ -355,6 +355,7 @@ const Dashboard = () => {
   const [user, setUser] = useState<any>(null);
   const [emergencyLoading, setEmergencyLoading] = useState(false);
   const [emergencyActive, setEmergencyActive] = useState(false);
+  const [dashView, setDashView] = useState<"monitor" | "control">("monitor");
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
