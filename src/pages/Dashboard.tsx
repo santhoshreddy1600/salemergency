@@ -536,7 +536,15 @@ const Dashboard = () => {
 
       <main className="mx-auto max-w-7xl px-3 sm:px-6 py-4 sm:py-6">
         {dashView === "control" ? (
-          <VehicleControlPanel />
+          isOnline ? (
+            <VehicleControlPanel />
+          ) : (
+            <div className="rounded-xl border border-border bg-card p-8 sm:p-12 text-center">
+              <Gamepad2 className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
+              <p className="text-foreground font-semibold mb-1">Device Offline</p>
+              <p className="text-sm text-muted-foreground">Vehicle controls are only available when the device is online.</p>
+            </div>
+          )
         ) : (
         <>
         {/* Accident Alert */}
